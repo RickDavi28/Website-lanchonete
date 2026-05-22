@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tortuga Burg - Os melhores burgers e lanches da cidade. Peça agora pelo delivery!" />
+  <meta name="theme-color" content="#f97316" />
+  <title>Tortuga Burg 🍔 | Delivery de Lanches</title>
+
+  <!-- Google Fonts: Bebas Neue (display) + Nunito (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Estilos principais -->
+  <link rel="stylesheet" href="assets/styles/style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVBAR FIXA
+       ============================================================ -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Menu principal">
+    <div class="navbar__container">
+
+      <!-- Logo -->
+      <a href="#hero" class="navbar__logo" aria-label="Tortuga Burg - Início">
+        <span class="navbar__logo-icon" aria-hidden="true">🍔</span>
+        <span class="navbar__logo-text">Tortuga<strong>Burg</strong></span>
+      </a>
+
+      <!-- Links de navegação -->
+      <ul class="navbar__links" id="navLinks" role="menubar">
+        <li role="none"><a href="#hero"    class="navbar__link" role="menuitem">Início</a></li>
+        <li role="none"><a href="#menu"    class="navbar__link" role="menuitem">Cardápio</a></li>
+        <li role="none"><a href="#contact" class="navbar__link" role="menuitem">Contato</a></li>
+        <li role="none">
+          <a href="admin.html" class="navbar__link navbar__link--admin" target="_blank" rel="noopener" role="menuitem">
+            <i class="fas fa-chart-bar" aria-hidden="true"></i> Admin
+          </a>
+        </li>
+      </ul>
+
+      <!-- Ações: carrinho + hamburger mobile -->
+      <div class="navbar__actions">
+        <button class="cart-btn" id="cartBtn" aria-label="Abrir carrinho de compras">
+          <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+          <span class="cart-btn__badge" id="cartBadge" aria-live="polite">0</span>
+        </button>
+        <button class="hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO SECTION
+       ============================================================ -->
+  <section class="hero" id="hero" aria-labelledby="heroTitle">
+
+    <!-- Fundo com gradiente e padrão de pontos -->
+    <div class="hero__bg" aria-hidden="true">
+      <div class="hero__bg-gradient"></div>
+      <div class="hero__bg-dots"></div>
+    </div>
+
+    <div class="hero__container">
+
+      <!-- Conteúdo principal -->
+      <div class="hero__content">
+        <span class="hero__badge" role="status">🔥 Promoção do Dia — 10% OFF no primeiro pedido</span>
+
+        <h1 class="hero__title" id="heroTitle">
+          O Burger que<br/>
+          <span class="hero__title-accent">você merece</span>
+        </h1>
+
+        <p class="hero__subtitle">
+          Ingredientes frescos, receitas exclusivas e sabor inigualável.
+          Peça agora e receba em até 40 minutos na sua porta.
+        </p>
+
+        <div class="hero__ctas">
+          <a href="#menu" class="btn btn--primary btn--lg">
+            <i class="fas fa-utensils" aria-hidden="true"></i> Ver Cardápio
+          </a>
+          <a href="#contact" class="btn btn--ghost btn--lg">
+            <i class="fas fa-phone" aria-hidden="true"></i> Falar Conosco
+          </a>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="hero__stats" aria-label="Nossas estatísticas">
+          <div class="hero__stat">
+            <strong>4.9<span class="hero__stat-star">★</span></strong>
+            <span>Avaliação</span>
+          </div>
+          <div class="hero__stat-divider" aria-hidden="true"></div>
+          <div class="hero__stat">
+            <strong>2.3k+</strong>
+            <span>Pedidos</span>
+          </div>
+          <div class="hero__stat-divider" aria-hidden="true"></div>
+          <div class="hero__stat">
+            <strong>40min</strong>
+            <span>Entrega</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual decorativo -->
+      <div class="hero__visual" aria-hidden="true">
+        <div class="hero__plate">
+          <div class="hero__plate-ring hero__plate-ring--outer"></div>
+          <div class="hero__plate-ring hero__plate-ring--inner"></div>
+          <div class="hero__food-emoji">🍔</div>
+        </div>
+
+        <!-- Cards flutuantes -->
+        <div class="hero__float-card hero__float-card--top">
+          <span class="hero__float-card-icon">⭐</span>
+          <div>
+            <strong>Top Avaliado</strong>
+            <small>Semana passada</small>
+          </div>
+        </div>
+
+        <div class="hero__float-card hero__float-card--bottom">
+          <span class="hero__float-card-icon">✅</span>
+          <div>
+            <strong>Pedido confirmado!</strong>
+            <small>Entrega em 35min</small>
+          </div>
+        </div>
+
+        <div class="hero__float-tag">🍟 Fritas grátis acima de R$50</div>
+      </div>
+
+    </div>
+
+    <!-- Indicador de scroll -->
+    <div class="hero__scroll-hint" aria-hidden="true">
+      <span>Role para ver o cardápio</span>
+      <i class="fas fa-chevron-down"></i>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
+       SEÇÃO DE CARDÁPIO
+       ============================================================ -->
+  <section class="menu-section" id="menu" aria-labelledby="menuTitle">
+    <div class="container">
+
+      <!-- Cabeçalho da seção -->
+      <header class="section-header">
+        <span class="section-badge">🍽️ Nosso Cardápio</span>
+        <h2 class="section-title" id="menuTitle">O que você vai pedir hoje?</h2>
+        <p class="section-subtitle">Escolha seus itens favoritos e monte seu pedido. Tudo fresquinho!</p>
+      </header>
+
+      <!-- Filtros por categoria -->
+      <div class="categories" id="categories" role="tablist" aria-label="Categorias do cardápio">
+        <button class="category-tab active" data-category="all"     role="tab" aria-selected="true">  <span aria-hidden="true">🍽️</span> Todos    </button>
+        <button class="category-tab"         data-category="burgers" role="tab" aria-selected="false"> <span aria-hidden="true">🍔</span> Burgers  </button>
+        <button class="category-tab"         data-category="hotdogs" role="tab" aria-selected="false"> <span aria-hidden="true">🌭</span> Hot Dogs </button>
+        <button class="category-tab"         data-category="fries"   role="tab" aria-selected="false"> <span aria-hidden="true">🍟</span> Porções  </button>
+        <button class="category-tab"         data-category="drinks"  role="tab" aria-selected="false"> <span aria-hidden="true">🥤</span> Bebidas  </button>
+        <button class="category-tab"         data-category="combos"  role="tab" aria-selected="false"> <span aria-hidden="true">🎯</span> Combos   </button>
+      </div>
+
+      <!-- Campo de busca -->
+      <div class="menu-search" role="search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          id="menuSearch"
+          placeholder="Buscar lanches, bebidas..."
+          aria-label="Buscar no cardápio"
+          autocomplete="off"
+        />
+        <button class="menu-search__clear" id="searchClear" aria-label="Limpar busca" style="display:none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Grade de produtos (populada pelo JavaScript) -->
+      <div class="products-grid" id="productsGrid" role="list" aria-live="polite" aria-label="Produtos">
+        <!-- Itens renderizados pelo script.js -->
+      </div>
+
+      <!-- Estado vazio (quando busca não retorna resultados) -->
+      <div class="empty-state" id="emptyState" role="status" aria-live="polite" style="display:none;">
+        <span aria-hidden="true">🔍</span>
+        <p>Nenhum produto encontrado para "<span id="emptyQuery"></span>".</p>
+        <small>Tente outra busca ou escolha uma categoria.</small>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEÇÃO DE CONTATO
+       ============================================================ -->
+  <section class="contact-section" id="contact" aria-labelledby="contactTitle">
+    <div class="container">
+
+      <header class="section-header">
+        <span class="section-badge">📞 Fale Conosco</span>
+        <h2 class="section-title" id="contactTitle">Estamos aqui para você</h2>
+        <p class="section-subtitle">Dúvidas, sugestões ou elogios? Entre em contato!</p>
+      </header>
+
+      <div class="contact-grid">
+
+        <!-- Informações de contato -->
+        <div class="contact-info">
+          <article class="contact-card">
+            <div class="contact-card__icon" aria-hidden="true">📍</div>
+            <div>
+              <h3>Endereço</h3>
+              <address>Rua Professor Celestino Pimentel, 111a<br/>Zona norte – Natal, RN<br/>CEP 59115-593</address>
+            </div>
+          </article>
+
+          <article class="contact-card">
+            <div class="contact-card__icon" aria-hidden="true">⏰</div>
+            <div>
+              <h3>Horário de Funcionamento</h3>
+              <p>Terça a Sexta: <strong>22h – 00h</strong></p>
+              <p>Sábado e Domingo: <strong>18h – 00h</strong></p>
+            </div>
+          </article>
+
+          <article class="contact-card">
+            <div class="contact-card__icon" aria-hidden="true">📱</div>
+            <div>
+              <h3>Telefone / WhatsApp</h3>
+              <p><a href="tel:+5584988887777">(84) 9 8888-7777</a></p>
+              <small>WhatsApp disponível 24h</small>
+            </div>
+          </article>
+
+          <article class="contact-card">
+            <div class="contact-card__icon" aria-hidden="true">🛵</div>
+            <div>
+              <h3>Delivery</h3>
+              <p>Raio de entrega: <strong>8km</strong></p>
+              <p>Taxa: <strong>R$ 5,00</strong> | Grátis acima de R$ 50</p>
+            </div>
+          </article>
+        </div>
+
+        <!-- Formulário de contato -->
+        <form class="contact-form" id="contactForm" novalidate aria-label="Formulário de contato">
+          <h3>Envie uma mensagem</h3>
+
+          <div class="form-group">
+            <label for="contactName">Seu nome <span class="required" aria-label="obrigatório">*</span></label>
+            <input type="text" id="contactName" name="name" placeholder="João Silva" required autocomplete="name" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contactEmail">E-mail <span class="required">*</span></label>
+              <input type="email" id="contactEmail" name="email" placeholder="joao@email.com" required autocomplete="email" />
+            </div>
+            <div class="form-group">
+              <label for="contactPhone">Telefone</label>
+              <input type="tel" id="contactPhone" name="phone" placeholder="(11) 9 0000-0000" autocomplete="tel" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="contactSubject">Assunto <span class="required">*</span></label>
+            <select id="contactSubject" name="subject" required>
+              <option value="" disabled selected>Selecione um assunto</option>
+              <option value="order">Problema com pedido</option>
+              <option value="suggestion">Sugestão</option>
+              <option value="compliment">Elogio</option>
+              <option value="other">Outro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="contactMsg">Mensagem <span class="required">*</span></label>
+            <textarea id="contactMsg" name="message" rows="4" placeholder="Como podemos ajudar?" required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--full">
+            <i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar Mensagem
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       RODAPÉ
+       ============================================================ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+
+        <!-- Marca -->
+        <div class="footer__brand">
+          <a href="#hero" class="footer__logo">🍔 Tortuga Burg</a>
+          <p>Os melhores burgers artesanais da cidade. Feitos com ingredientes frescos, entregues com agilidade e carinho.</p>
+          <div class="footer__social" aria-label="Redes sociais">
+            <a href="https://www.instagram.com/tortuga_.hotdog?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" aria-label="Instagram do Tortuga Burg" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+            <a href="#" aria-label="Facebook do Tortuga Burg" rel="noopener"><i class="fab fa-facebook" aria-hidden="true"></i></a>
+            <a href="#" aria-label="WhatsApp do Tortuga Burg" rel="noopener"><i class="fab fa-whatsapp" aria-hidden="true"></i></a>
+            <a href="#" aria-label="TikTok do Tortuga Burg" rel="noopener"><i class="fab fa-tiktok" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <!-- Links de navegação -->
+        <nav class="footer__links" aria-label="Links do site">
+          <h4>Navegação</h4>
+          <ul>
+            <li><a href="#hero">Início</a></li>
+            <li><a href="#menu">Cardápio</a></li>
+            <li><a href="#contact">Contato</a></li>
+            <li><a href="admin.html" target="_blank" rel="noopener">Painel Admin</a></li>
+          </ul>
+        </nav>
+
+        <!-- Categorias -->
+        <nav class="footer__links" aria-label="Categorias do cardápio">
+          <h4>Categorias</h4>
+          <ul>
+            <li><a href="#menu" data-filter="burgers">Burgers</a></li>
+            <li><a href="#menu" data-filter="hotdogs">Hot Dogs</a></li>
+            <li><a href="#menu" data-filter="fries">Porções</a></li>
+            <li><a href="#menu" data-filter="drinks">Bebidas</a></li>
+            <li><a href="#menu" data-filter="combos">Combos</a></li>
+          </ul>
+        </nav>
+
+        <!-- Pagamentos -->
+        <div class="footer__payments">
+          <h4>Formas de Pagamento</h4>
+          <div class="payment-badges" aria-label="Pagamentos aceitos">
+            <span class="payment-badge" title="PIX">💠 PIX</span>
+            <span class="payment-badge" title="Visa">💳 Visa</span>
+            <span class="payment-badge" title="Mastercard">💳 Master</span>
+            <span class="payment-badge" title="Dinheiro">💵 Dinheiro</span>
+          </div>
+          <p class="footer__delivery-note">
+            <i class="fas fa-motorcycle" aria-hidden="true"></i>
+            Entrega própria · Raio de 8km
+          </p>
+          <p class="footer__delivery-note">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            Pagamento 100% seguro
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Rodapé inferior -->
+      <div class="footer__bottom">
+        <p>© 2025 Tortuga Burg. Todos os direitos reservados.</p>
+        <p>Desenvolvido com ❤️ · Preparado para Node.js + PostgreSQL + Mercado Pago</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       OVERLAY DO CARRINHO (backdrop)
+       ============================================================ -->
+  <div class="cart-overlay" id="cartOverlay" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       SIDEBAR DO CARRINHO (painel lateral)
+       ============================================================ -->
+  <aside class="cart-sidebar" id="cartSidebar" role="dialog" aria-modal="true" aria-label="Carrinho de compras">
+
+    <!-- Cabeçalho -->
+    <div class="cart-sidebar__header">
+      <h2><i class="fas fa-shopping-bag" aria-hidden="true"></i> Meu Pedido</h2>
+      <button class="cart-close-btn" id="cartCloseBtn" aria-label="Fechar carrinho">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Estado vazio -->
+    <div class="cart-empty" id="cartEmpty" aria-live="polite">
+      <span aria-hidden="true">🛒</span>
+      <p>Seu carrinho está vazio</p>
+      <small>Adicione itens deliciosos do cardápio!</small>
+      <a href="#menu" class="btn btn--ghost btn--sm" id="cartGoToMenu">Ver Cardápio</a>
+    </div>
+
+    <!-- Lista de itens -->
+    <div class="cart-items" id="cartItems" role="list" aria-label="Itens no carrinho">
+      <!-- Populado pelo script.js -->
+    </div>
+
+    <!-- Rodapé do carrinho (totais + ações) -->
+    <div class="cart-footer" id="cartFooter" style="display:none;">
+      <div class="cart-summary" aria-label="Resumo de valores">
+        <div class="cart-summary__row">
+          <span>Subtotal</span>
+          <span id="cartSubtotal">R$ 0,00</span>
+        </div>
+        <div class="cart-summary__row">
+          <span>Taxa de entrega</span>
+          <span id="cartDelivery">R$ 5,00</span>
+        </div>
+        <div class="cart-summary__row">
+          <span>Desconto</span>
+          <span id="cartDiscount" class="discount-value">— R$ 0,00</span>
+        </div>
+        <div class="cart-summary__row cart-summary__row--total">
+          <span>Total</span>
+          <span id="cartTotal">R$ 0,00</span>
+        </div>
+      </div>
+
+      <!-- Campo de cupom -->
+      <div class="coupon-row">
+        <input type="text" id="couponInput" placeholder="Código de cupom" aria-label="Cupom de desconto" />
+        <button class="btn btn--ghost btn--sm" id="couponApplyBtn">Aplicar</button>
+      </div>
+
+      <!-- Botões de ação -->
+      <div class="cart-actions">
+        <button class="btn btn--danger btn--sm" id="clearCartBtn">
+          <i class="fas fa-trash" aria-hidden="true"></i> Limpar
+        </button>
+        <button class="btn btn--primary" id="checkoutBtn">
+          Finalizar Pedido <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ============================================================
+       MODAL DE CHECKOUT
+       ============================================================ -->
+  <div class="modal-overlay" id="checkoutOverlay" role="dialog" aria-modal="true" aria-label="Finalizar pedido">
+    <div class="modal checkout-modal" id="checkoutModal">
+
+      <!-- Cabeçalho -->
+      <div class="modal__header">
+        <h2><i class="fas fa-clipboard-list" aria-hidden="true"></i> Finalizar Pedido</h2>
+        <button class="modal__close" id="checkoutCloseBtn" aria-label="Fechar checkout">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- Progresso visual -->
+      <div class="checkout-progress" aria-label="Etapas do checkout">
+        <div class="checkout-progress__step active" data-step="1">
+          <span class="checkout-progress__number">1</span>
+          <span class="checkout-progress__label">Entrega</span>
+        </div>
+        <div class="checkout-progress__line"></div>
+        <div class="checkout-progress__step" data-step="2">
+          <span class="checkout-progress__number">2</span>
+          <span class="checkout-progress__label">Pagamento</span>
+        </div>
+        <div class="checkout-progress__line"></div>
+        <div class="checkout-progress__step" data-step="3">
+          <span class="checkout-progress__number">3</span>
+          <span class="checkout-progress__label">Resumo</span>
+        </div>
+      </div>
+
+      <!-- Corpo do modal -->
+      <div class="modal__body">
+
+        <!-- Etapa 1: Dados de entrega -->
+        <fieldset class="checkout-step" id="checkoutStep1" aria-labelledby="step1Title">
+          <legend class="checkout-step__title" id="step1Title">
+            <span class="step-badge">1</span> Informações de Entrega
+          </legend>
+
+          <div class="form-group">
+            <label for="checkoutName">Nome completo <span class="required">*</span></label>
+            <input type="text" id="checkoutName" placeholder="Seu nome completo" required autocomplete="name" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="checkoutPhone">Telefone <span class="required">*</span></label>
+              <input type="tel" id="checkoutPhone" placeholder="(11) 9 0000-0000" required autocomplete="tel" />
+            </div>
+            <div class="form-group">
+              <label for="checkoutCep">CEP <span class="required">*</span></label>
+              <input type="text" id="checkoutCep" placeholder="00000-000" maxlength="9" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="checkoutAddress">Endereço <span class="required">*</span></label>
+            <input type="text" id="checkoutAddress" placeholder="Rua, número e complemento" required autocomplete="street-address" />
+          </div>
+
+          <div class="form-group">
+            <label for="checkoutNeighborhood">Bairro</label>
+            <input type="text" id="checkoutNeighborhood" placeholder="Seu bairro" autocomplete="address-level3" />
+          </div>
+
+          <div class="form-group">
+            <label for="checkoutObs">Observações do pedido</label>
+            <textarea id="checkoutObs" rows="2" placeholder="Ex.: sem cebola, ponto da carne, toque o interfone..."></textarea>
+          </div>
+        </fieldset>
+
+        <!-- Etapa 2: Forma de pagamento -->
+        <fieldset class="checkout-step" id="checkoutStep2" aria-labelledby="step2Title">
+          <legend class="checkout-step__title" id="step2Title">
+            <span class="step-badge">2</span> Forma de Pagamento
+          </legend>
+
+          <div class="payment-methods" role="radiogroup" aria-label="Escolha a forma de pagamento">
+
+            <label class="payment-method" data-method="pix">
+              <input type="radio" name="payment" value="pix" aria-label="Pagar com PIX" />
+              <div class="payment-method__card">
+                <span class="payment-method__icon" aria-hidden="true">💠</span>
+                <div class="payment-method__info">
+                  <strong>PIX</strong>
+                  <small>Pagamento instantâneo · Aprovação imediata</small>
+                </div>
+                <span class="payment-method__badge">5% off</span>
+              </div>
+            </label>
+
+            <label class="payment-method" data-method="card">
+              <input type="radio" name="payment" value="card" aria-label="Pagar com cartão" />
+              <div class="payment-method__card">
+                <span class="payment-method__icon" aria-hidden="true">💳</span>
+                <div class="payment-method__info">
+                  <strong>Cartão de Crédito / Débito</strong>
+                  <small>Visa, Mastercard, Elo, Amex</small>
+                </div>
+              </div>
+            </label>
+
+            <label class="payment-method" data-method="cash">
+              <input type="radio" name="payment" value="cash" aria-label="Pagar com dinheiro" />
+              <div class="payment-method__card">
+                <span class="payment-method__icon" aria-hidden="true">💵</span>
+                <div class="payment-method__info">
+                  <strong>Dinheiro na Entrega</strong>
+                  <small>Informe o valor para troco</small>
+                </div>
+              </div>
+            </label>
+
+          </div>
+
+          <!-- Detalhes PIX (aparece ao selecionar PIX) -->
+          <div class="pix-details" id="pixDetails" aria-live="polite" style="display:none;">
+            <p class="pix-details__note">
+              <i class="fas fa-info-circle" aria-hidden="true"></i>
+              Você receberá a chave PIX após confirmar o pedido. O pedido será processado assim que o pagamento for detectado.
+            </p>
+            <div class="pix-key-box">
+              <span class="pix-key-box__label">Chave PIX (CNPJ)</span>
+              <code id="pixKey">00.000.000/0001-00</code>
+              <button class="btn btn--ghost btn--sm" id="copyPixBtn" aria-label="Copiar chave PIX">
+                <i class="fas fa-copy" aria-hidden="true"></i> Copiar
+              </button>
+            </div>
+          </div>
+
+          <!-- Troco para dinheiro -->
+          <div class="cash-details" id="cashDetails" aria-live="polite" style="display:none;">
+            <div class="form-group">
+              <label for="changeFor">Precisa de troco para</label>
+              <input type="number" id="changeFor" placeholder="R$ 0,00" min="0" step="0.01" />
+            </div>
+            <p class="cash-details__note">
+              <i class="fas fa-info-circle" aria-hidden="true"></i>
+              Deixe em branco se não precisar de troco.
+            </p>
+          </div>
+
+        </fieldset>
+
+        <!-- Etapa 3: Resumo do pedido -->
+        <div class="checkout-step" id="checkoutStep3" aria-labelledby="step3Title">
+          <h3 class="checkout-step__title" id="step3Title">
+            <span class="step-badge">3</span> Resumo do Pedido
+          </h3>
+
+          <div class="checkout-items-list" id="checkoutItemsList" aria-label="Itens do pedido">
+            <!-- Populado pelo script.js -->
+          </div>
+
+          <div class="checkout-totals">
+            <div class="cart-summary__row"><span>Subtotal</span><span id="checkoutSubtotal">—</span></div>
+            <div class="cart-summary__row"><span>Entrega</span><span>R$ 5,00</span></div>
+            <div class="cart-summary__row"><span>Desconto</span><span id="checkoutDiscount" class="discount-value">—</span></div>
+            <div class="cart-summary__row cart-summary__row--total">
+              <span>Total</span>
+              <span id="checkoutTotalFinal">—</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Rodapé do modal -->
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="checkoutBackBtn">
+          <i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao Carrinho
+        </button>
+        <button class="btn btn--primary btn--lg" id="placeOrderBtn">
+          <i class="fas fa-check-circle" aria-hidden="true"></i> Confirmar Pedido
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODAL DE SUCESSO
+       ============================================================ -->
+  <div class="modal-overlay" id="successOverlay" role="dialog" aria-modal="true" aria-label="Pedido confirmado">
+    <div class="modal success-modal" id="successModal">
+      <div class="success-modal__content">
+        <div class="success-modal__anim" aria-hidden="true">✅</div>
+        <h2>Pedido Confirmado!</h2>
+        <p>Seu pedido foi recebido e está sendo preparado com todo cuidado pela nossa equipe.</p>
+        <div class="success-modal__id">
+          Pedido <strong id="successOrderId">#0001</strong>
+        </div>
+        <div class="success-modal__info">
+          <div class="success-modal__info-item">
+            <i class="fas fa-clock" aria-hidden="true"></i>
+            <span>Previsão: <strong>30 – 45 minutos</strong></span>
+          </div>
+          <div class="success-modal__info-item">
+            <i class="fas fa-bell" aria-hidden="true"></i>
+            <span>Acompanhe pelo WhatsApp</span>
+          </div>
+        </div>
+        <button class="btn btn--primary btn--lg btn--full" id="successCloseBtn">
+          <i class="fas fa-utensils" aria-hidden="true"></i> Fazer Novo Pedido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       CONTAINER DE TOASTS (notificações)
+       ============================================================ -->
+  <div class="toast-container" id="toastContainer" role="region" aria-label="Notificações" aria-live="polite"></div>
+
+  <!-- Botão flutuante de WhatsApp -->
+  <a href="https://wa.me/5511988887777" class="whatsapp-fab" target="_blank" rel="noopener" aria-label="Conversar pelo WhatsApp">
+    <i class="fab fa-whatsapp" aria-hidden="true"></i>
+  </a>
+
+  <!-- Script principal -->
+  <script src="assets/scripts/script.js"></script>
+
+</body>
+</html>

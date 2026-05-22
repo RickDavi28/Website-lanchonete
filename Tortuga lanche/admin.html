@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tortuga Burg — Painel Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/styles/style.css" />
+  <style>
+    /* Estilos exclusivos do painel admin */
+    body { overflow: hidden; }
+
+    /* Barra de rolagem visível na área de conteúdo do admin */
+    .admin-content::-webkit-scrollbar        { width: 8px; }
+    .admin-content::-webkit-scrollbar-track  { background: var(--color-surface); }
+    .admin-content::-webkit-scrollbar-thumb  {
+      background: var(--color-surface-3);
+      border-radius: var(--radius-pill);
+      border: 2px solid var(--color-surface);
+    }
+    .admin-content::-webkit-scrollbar-thumb:hover { background: var(--color-brand); }
+
+    /* Sidebar também rola se o menu crescer */
+    .admin-sidebar::-webkit-scrollbar        { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-track  { background: transparent; }
+    .admin-sidebar::-webkit-scrollbar-thumb  { background: var(--color-surface-3); border-radius: 2px; }
+    .admin-sidebar::-webkit-scrollbar-thumb:hover { background: var(--color-brand); }
+
+    .admin-content-inner { display: flex; flex-direction: column; gap: var(--space-xl); }
+
+    /* Timeline de pedidos */
+    .orders-timeline { display: flex; flex-direction: column; gap: var(--space-sm); }
+
+    .order-row-expandable { cursor: pointer; }
+    .order-row-expandable:hover td { background: rgba(249,115,22,.06) !important; }
+
+    .order-detail-row td { padding: 0; border: none; }
+    .order-detail-inner {
+      padding: 0 var(--space-lg);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .4s ease, padding .4s ease;
+    }
+    .order-detail-inner.open { max-height: 600px; padding: var(--space-md) var(--space-lg); }
+
+    .order-items-detail {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      padding: var(--space-md) 0;
+    }
+
+    .order-item-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    /* Coluna de ações */
+    .order-actions { display: flex; gap: 6px; align-items: center; }
+
+    /* Stats de categoria */
+    .category-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-sm);
+    }
+    .cat-stat-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      text-align: center;
+      transition: border-color var(--transition-base);
+    }
+    .cat-stat-card:hover { border-color: rgba(249,115,22,.3); }
+    .cat-stat-card .emoji { font-size: 1.6rem; margin-bottom: 6px; }
+    .cat-stat-card .label { font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; }
+    .cat-stat-card .value { font-size: 1.2rem; font-weight: 900; color: var(--color-text); margin: 4px 0; }
+    .cat-stat-card .bar { height: 4px; border-radius: 2px; background: var(--color-surface-3); margin-top: 8px; overflow: hidden; }
+    .cat-stat-card .bar-fill { height: 100%; background: var(--color-brand); border-radius: 2px; transition: width 1s ease; }
+
+    /* Mini gráfico de barras */
+    .mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 60px; }
+    .mini-bar {
+      flex: 1;
+      background: rgba(249,115,22,.3);
+      border-radius: 3px 3px 0 0;
+      transition: background var(--transition-fast);
+      cursor: pointer;
+      position: relative;
+    }
+    .mini-bar:hover { background: var(--color-brand); }
+    .mini-bar::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      color: var(--color-text-faint);
+      white-space: nowrap;
+    }
+    .chart-wrap { overflow: visible; padding-bottom: 24px; }
+
+    /* Live clock */
+    .live-clock { font-size: 0.85rem; font-weight: 700; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+
+    /* Printer mock */
+    @media print {
+      .admin-sidebar, .admin-topbar-actions { display: none !important; }
+      .admin-main { overflow: visible !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="admin-sidebar" role="navigation" aria-label="Menu administrativo">
+
+    <div class="admin-sidebar__brand">
+      <span aria-hidden="true">🍔</span>
+      Tortuga<span>Burg</span>
+      <small style="font-size:.7rem;color:var(--color-text-muted);font-family:var(--font-body);margin-left:auto;">Admin</small>
+    </div>
+
+    <nav class="admin-sidebar__nav" aria-label="Seções do painel">
+      <a href="#orders"    class="admin-nav-item active" data-section="orders">
+        <i class="fas fa-receipt" aria-hidden="true"></i> Pedidos
+      </a>
+      <a href="#dashboard" class="admin-nav-item" data-section="dashboard">
+        <i class="fas fa-chart-bar" aria-hidden="true"></i> Dashboard
+      </a>
+      <a href="#products"  class="admin-nav-item" data-section="products">
+        <i class="fas fa-burger" aria-hidden="true"></i> Cardápio
+      </a>
+      <a href="#clients"   class="admin-nav-item" data-section="clients">
+        <i class="fas fa-users" aria-hidden="true"></i> Clientes
+      </a>
+      <a href="#settings"  class="admin-nav-item" data-section="settings">
+        <i class="fas fa-cog" aria-hidden="true"></i> Config.
+      </a>
+    </nav>
+
+    <div class="admin-sidebar__footer">
+      <a href="index.html" class="btn btn--ghost btn--sm btn--full" style="justify-content:center;">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao Site
+      </a>
+      <p style="text-align:center;font-size:.72rem;color:var(--color-text-faint);margin-top:12px;">
+        v1.0.0 ·TortugaBurg
+      </p>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       ÁREA PRINCIPAL
+       ============================================================ -->
+  <main class="admin-main" role="main">
+
+    <!-- Top Bar -->
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <h1 id="sectionTitle">Pedidos</h1>
+        <span class="status-dot" title="Sistema online"></span>
+        <span style="font-size:.78rem;color:var(--color-success);font-weight:700;">Online</span>
+      </div>
+      <div class="admin-topbar-actions">
+        <span class="live-clock" id="liveClock" aria-live="polite" aria-label="Horário atual"></span>
+        <button class="btn btn--ghost btn--sm" id="refreshBtn" title="Atualizar pedidos">
+          <i class="fas fa-sync-alt" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn--primary btn--sm" id="printBtn">
+          <i class="fas fa-print" aria-hidden="true"></i> Imprimir
+        </button>
+      </div>
+    </header>
+
+    <!-- Conteúdo scrollável -->
+    <div class="admin-content">
+      <div class="admin-content-inner" id="adminContentInner">
+
+        <!-- ── SEÇÃO: PEDIDOS ──────────────────────────────── -->
+        <section id="section-orders" aria-labelledby="ordersTitle">
+
+          <!-- KPIs rápidos -->
+          <div class="admin-kpis" id="adminKpis" role="region" aria-label="Indicadores do dia">
+            <!-- Renderizados por admin.js -->
+          </div>
+
+          <!-- Filtros + busca -->
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <div class="admin-filters" role="group" aria-label="Filtrar pedidos">
+              <button class="admin-filter-btn active" data-filter="all">Todos</button>
+              <button class="admin-filter-btn" data-filter="pending">⏳ Pendentes</button>
+              <button class="admin-filter-btn" data-filter="preparing">🔥 Preparando</button>
+              <button class="admin-filter-btn" data-filter="delivery">🛵 Em entrega</button>
+              <button class="admin-filter-btn" data-filter="done">✅ Concluídos</button>
+              <button class="admin-filter-btn" data-filter="cancelled">❌ Cancelados</button>
+            </div>
+            <div style="position:relative;">
+              <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--color-text-muted);pointer-events:none;" aria-hidden="true"></i>
+              <input
+                type="search"
+                id="adminSearch"
+                placeholder="Buscar pedido ou cliente…"
+                style="padding:9px 12px 9px 36px;border-radius:var(--radius-pill);border:1.5px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:.85rem;outline:none;width:240px;"
+                aria-label="Buscar pedidos"
+              />
+            </div>
+          </div>
+
+          <!-- Tabela de pedidos -->
+          <div class="orders-table-wrap" role="region" aria-label="Lista de pedidos">
+            <table class="orders-table" id="ordersTable" aria-live="polite">
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Horário</th>
+                  <th>Cliente</th>
+                  <th>Itens</th>
+                  <th>Total</th>
+                  <th>Pagamento</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <!-- Renderizado por admin.js -->
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+
+        <!-- ── SEÇÃO: DASHBOARD ───────────────────────────── -->
+        <section id="section-dashboard" style="display:none;" aria-labelledby="dashboardTitle">
+
+          <h2 id="dashboardTitle" style="margin-bottom:16px;">Resumo Geral</h2>
+
+          <!-- Gráfico de vendas por hora -->
+          <div class="order-detail-panel">
+            <h3>Vendas por hora (hoje)</h3>
+            <div class="chart-wrap">
+              <div class="mini-chart" id="miniChart" aria-label="Gráfico de vendas por hora" role="img"></div>
+            </div>
+          </div>
+
+          <!-- Vendas por categoria -->
+          <div class="order-detail-panel" style="margin-top:16px;">
+            <h3>Itens mais vendidos por categoria</h3>
+            <div class="category-stats" id="categoryStats"></div>
+          </div>
+
+          <!-- Tabela top produtos -->
+          <div class="order-detail-panel" style="margin-top:16px;">
+            <h3>Top 5 produtos do dia</h3>
+            <table class="orders-table" id="topProductsTable">
+              <thead>
+                <tr><th>#</th><th>Produto</th><th>Categoria</th><th>Qtd Vendida</th><th>Receita</th></tr>
+              </thead>
+              <tbody id="topProductsBody"></tbody>
+            </table>
+          </div>
+
+        </section>
+
+        <!-- ── SEÇÃO: CARDÁPIO (mockada) ──────────────────── -->
+        <section id="section-products" style="display:none;" aria-labelledby="productsAdminTitle">
+          <h2 id="productsAdminTitle" style="margin-bottom:16px;">Gestão do Cardápio</h2>
+          <div class="order-detail-panel">
+            <p style="color:var(--color-text-muted);font-size:.9rem;line-height:1.7;">
+              <i class="fas fa-info-circle" style="color:var(--color-brand);margin-right:8px;" aria-hidden="true"></i>
+              Esta seção estará disponível na integração com o backend.<br/>
+              Funcionalidades planejadas: <strong>criar, editar, desativar</strong> produtos,
+              <strong>upload de imagens</strong> via S3/Cloudinary, controle de
+              <strong>estoque</strong> em tempo real e <strong>promoções</strong> programadas.
+            </p>
+            <div id="productsAdminGrid" style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;"></div>
+          </div>
+        </section>
+
+        <!-- ── SEÇÃO: CLIENTES (mockada) ──────────────────── -->
+        <section id="section-clients" style="display:none;" aria-labelledby="clientsTitle">
+          <h2 id="clientsTitle" style="margin-bottom:16px;">Clientes</h2>
+          <div class="order-detail-panel">
+            <p style="color:var(--color-text-muted);font-size:.9rem;">
+              <i class="fas fa-info-circle" style="color:var(--color-brand);margin-right:8px;" aria-hidden="true"></i>
+              Requer integração com banco de dados (PostgreSQL). Funcionalidades: histórico de pedidos,
+              segmentação, fidelidade (cashback), exportação CSV e CRM básico.
+            </p>
+          </div>
+        </section>
+
+        <!-- ── SEÇÃO: CONFIG (mockada) ────────────────────── -->
+        <section id="section-settings" style="display:none;" aria-labelledby="settingsTitle">
+          <h2 id="settingsTitle" style="margin-bottom:16px;">Configurações</h2>
+          <div class="order-detail-panel">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group">
+                <label>Nome da lanchonete</label>
+                <input type="text" value="Tortuga Burg" />
+              </div>
+              <div class="form-group">
+                <label>Taxa de entrega (R$)</label>
+                <input type="number" value="5.00" min="0" step="0.50" />
+              </div>
+              <div class="form-group">
+                <label>Raio de entrega (km)</label>
+                <input type="number" value="8" min="1" max="50" />
+              </div>
+              <div class="form-group">
+                <label>Frete grátis acima de (R$)</label>
+                <input type="number" value="80" min="0" />
+              </div>
+              <div class="form-group">
+                <label>WhatsApp de contato</label>
+                <input type="text" value="(11) 9 8888-7777" />
+              </div>
+              <div class="form-group">
+                <label>Chave PIX</label>
+                <input type="text" value="00.000.000/0001-00" />
+              </div>
+            </div>
+            <button class="btn btn--primary" style="margin-top:20px;" onclick="alert('Configurações salvas! (mock)')">
+              <i class="fas fa-save" aria-hidden="true"></i> Salvar Configurações
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer" role="region" aria-live="polite"></div>
+
+<script>
+/**
+ * SnapBurg Admin — admin.js (inline)
+ * Lê pedidos do localStorage e renderiza o painel.
+ * Pronto para substituição por WebSocket + API REST.
+ */
+'use strict';
+
+/* ── Utilitários ─────────────────────────────────────── */
+const fmt  = (v) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+const san  = (s) => String(s).replace(/[<>&"]/g,(c)=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const fmtT = (iso) => {
+  try { return new Date(iso).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+  catch { return '—'; }
+};
+
+/* ── Estado ──────────────────────────────────────────── */
+let orders        = [];
+let currentFilter = 'all';
+let expandedRow   = null;
+
+const STATUS_MAP = {
+  pending:   { label: 'Pendente',    class: 'status-badge--pending',   next: 'preparing', nextLabel: '🔥 Iniciar' },
+  preparing: { label: 'Preparando',  class: 'status-badge--preparing', next: 'delivery',  nextLabel: '🛵 Sair'    },
+  delivery:  { label: 'Em Entrega',  class: 'status-badge--delivery',  next: 'done',      nextLabel: '✅ Entregue'},
+  done:      { label: 'Concluído',   class: 'status-badge--done',      next: null,        nextLabel: null         },
+  cancelled: { label: 'Cancelado',   class: 'status-badge--cancelled', next: null,        nextLabel: null         },
+};
+
+const PAYMENT_LABELS = { pix: '💠 PIX', card: '💳 Cartão', cash: '💵 Dinheiro' };
+
+/* ── Dados mock para demo (quando não há pedidos salvos) ── */
+/*const MOCK_ORDERS = (() => {
+  const now = Date.now();
+  return [
+    {
+      id: '#1004', status: 'pending',
+      customer: { name: 'Ana Lima', phone: '(11) 9 8821-3344', address: 'Rua das Flores, 320', neighborhood: 'Jardins', cep: '01404-001', notes: '' },
+      payment: 'pix',
+      items: [{ id:'c01', name:'Combo Classic', emoji:'🎯', qty:1, price:49.90 }, { id:'d03', name:'Milk Shake', emoji:'🥛', qty:1, price:19.90 }],
+      totals: { subtotal:69.80, discount:3.49, delivery:0, total:66.31 },
+      createdAt: new Date(now - 5*60000).toISOString()
+    },
+    {
+      id: '#1003', status: 'preparing',
+      customer: { name: 'Carlos Menezes', phone: '(11) 9 7700-9988', address: 'Av. Paulista, 900, ap 42', neighborhood: 'Bela Vista', cep: '01310-100', notes: 'Tocar interfone 42' },
+      payment: 'card',
+      items: [{ id:'b02', name:'SnapDouble', emoji:'🍔', qty:2, price:44.90 }, { id:'f03', name:'Batata Cheddar', emoji:'🧀', qty:1, price:26.90 }],
+      totals: { subtotal:116.70, discount:0, delivery:0, total:116.70 },
+      createdAt: new Date(now - 18*60000).toISOString()
+    },
+    {
+      id: '#1002', status: 'delivery',
+      customer: { name: 'Fernanda Costa', phone: '(11) 9 5542-8876', address: 'Rua Augusta, 200', neighborhood: 'Consolação', cep: '01305-000', notes: '' },
+      payment: 'cash',
+      items: [{ id:'b01', name:'SnapClassic', emoji:'🍔', qty:1, price:32.90 }, { id:'d01', name:'Coca-Cola Lata', emoji:'🥤', qty:2, price:7.90 }],
+      totals: { subtotal:48.70, discount:0, delivery:5.00, total:53.70 },
+      createdAt: new Date(now - 35*60000).toISOString()
+    },
+    {
+      id: '#1001', status: 'done',
+      customer: { name: 'Rafael Souza', phone: '(11) 9 3312-6655', address: 'Rua Oscar Freire, 500', neighborhood: 'Cerqueira César', cep: '01426-001', notes: '' },
+      payment: 'pix',
+      items: [{ id:'c02', name:'Combo Double', emoji:'🎯', qty:1, price:62.90 }],
+      totals: { subtotal:62.90, discount:3.15, delivery:0, total:59.75 },
+      createdAt: new Date(now - 65*60000).toISOString()
+    },
+    {
+      id: '#1000', status: 'cancelled',
+      customer: { name: 'Mariana Lopes', phone: '(11) 9 9988-7766', address: 'Rua Haddock Lobo, 100', neighborhood: 'Jardins', cep: '01414-001', notes: '' },
+      payment: 'card',
+      items: [{ id:'b05', name:'SnapSmash', emoji:'🔥', qty:2, price:38.90 }],
+      totals: { subtotal:77.80, discount:0, delivery:5.00, total:82.80 },
+      createdAt: new Date(now - 90*60000).toISOString()
+    }
+  ];
+})();*/
+
+/* ── Carrega pedidos ─────────────────────────────────── */
+const loadOrders = () => {
+  const saved = JSON.parse(localStorage.getItem('snapburg_orders') || '[]');
+  orders = saved.length ? saved : MOCK_ORDERS;
+  // Garante que todos tenham status
+  orders.forEach(o => { if (!o.status) o.status = 'pending'; });
+};
+
+const saveOrders = () => {
+  localStorage.setItem('snapburg_orders', JSON.stringify(orders));
+};
+
+/* ── KPIs ────────────────────────────────────────────── */
+const renderKpis = () => {
+  const today    = orders.filter(o => o.status !== 'cancelled');
+  const pending  = orders.filter(o => o.status === 'pending').length;
+  const done     = orders.filter(o => o.status === 'done').length;
+  const revenue  = today.filter(o => o.status === 'done')
+                        .reduce((s,o) => s + (o.totals?.total || 0), 0);
+  const avgTicket = done > 0 ? revenue / done : 0;
+
+  const kpis = [
+    { icon:'🛵', iconClass:'orange', label:'Pedidos Hoje',   value: orders.length,     change:'+12%', dir:'up'   },
+    { icon:'✅', iconClass:'green',  label:'Concluídos',     value: done,              change:'+8%',  dir:'up'   },
+    { icon:'⏳', iconClass:'yellow', label:'Pendentes',      value: pending,           change:'',     dir:''     },
+    { icon:'💰', iconClass:'blue',   label:'Receita do Dia', value: fmt(revenue),      change:'+22%', dir:'up'   },
+  ];
+
+  const container = document.getElementById('adminKpis');
+  container.innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-card__icon kpi-card__icon--${k.iconClass}">${k.icon}</div>
+      <div class="kpi-card__info">
+        <p class="kpi-card__label">${san(k.label)}</p>
+        <p class="kpi-card__value">${san(String(k.value))}</p>
+        ${k.change ? `<p class="kpi-card__change kpi-card__change--${k.dir}">
+          <i class="fas fa-arrow-${k.dir}" aria-hidden="true"></i> ${san(k.change)} vs ontem
+        </p>` : ''}
+      </div>
+    </div>`).join('');
+};
+
+/* ── Tabela de pedidos ───────────────────────────────── */
+const getFiltered = () => {
+  const query = (document.getElementById('adminSearch')?.value || '').toLowerCase();
+  return orders.filter(o => {
+    const matchFilter = currentFilter === 'all' || o.status === currentFilter;
+    const matchSearch = !query
+      || o.id.toLowerCase().includes(query)
+      || (o.customer?.name || '').toLowerCase().includes(query);
+    return matchFilter && matchSearch;
+  });
+};
+
+const updateStatus = (orderId, newStatus) => {
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return;
+  order.status = newStatus;
+  saveOrders();
+  renderTable();
+  renderKpis();
+  showToast(`Pedido ${orderId} → ${STATUS_MAP[newStatus]?.label || newStatus}`, 'success');
+};
+
+const cancelOrder = (orderId) => {
+  if (!confirm(`Cancelar o pedido ${orderId}?`)) return;
+  const order = orders.find(o => o.id === orderId);
+  if (order) { order.status = 'cancelled'; saveOrders(); renderTable(); renderKpis(); }
+  showToast(`Pedido ${orderId} cancelado.`, 'error');
+};
+
+const renderTable = () => {
+  const tbody    = document.getElementById('ordersTableBody');
+  const filtered = getFiltered();
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--color-text-faint);">Nenhum pedido encontrado.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  filtered.forEach(order => {
+    const s          = STATUS_MAP[order.status] || STATUS_MAP.pending;
+    const itemCount  = (order.items || []).reduce((s,i) => s + i.qty, 0);
+    const itemNames  = (order.items || []).slice(0,2).map(i => `${i.emoji} ${san(i.name)}`).join(', ')
+                        + (order.items?.length > 2 ? ` +${order.items.length - 2}` : '');
+
+    // Linha principal
+    const tr = document.createElement('tr');
+    tr.className = 'order-row-expandable';
+    tr.setAttribute('role', 'row');
+    tr.setAttribute('aria-label', `Pedido ${order.id}`);
+    tr.dataset.orderId = order.id;
+    tr.innerHTML = `
+      <td><strong style="color:var(--color-brand);">${san(order.id)}</strong></td>
+      <td style="color:var(--color-text-muted);font-size:.82rem;white-space:nowrap;">${fmtT(order.createdAt)}</td>
+      <td>
+        <strong style="font-size:.9rem;">${san(order.customer?.name || '—')}</strong>
+        <br/><small style="color:var(--color-text-muted);">${san(order.customer?.neighborhood || '')}</small>
+      </td>
+      <td>
+        <span title="${san(itemNames)}" style="font-size:.85rem;">${itemCount} item${itemCount>1?'s':''}</span>
+        <br/><small style="color:var(--color-text-muted);font-size:.75rem;">${san(itemNames)}</small>
+      </td>
+      <td><strong>${fmt(order.totals?.total || 0)}</strong></td>
+      <td style="font-size:.85rem;">${san(PAYMENT_LABELS[order.payment] || order.payment || '—')}</td>
+      <td><span class="status-badge ${s.class}">${san(s.label)}</span></td>
+      <td>
+        <div class="order-actions">
+          ${s.next ? `<button class="btn btn--primary btn--sm" onclick="updateStatus('${san(order.id)}','${s.next}')" title="${san(s.nextLabel)}">${san(s.nextLabel)}</button>` : ''}
+          ${order.status !== 'done' && order.status !== 'cancelled'
+            ? `<button class="btn btn--danger btn--sm" onclick="cancelOrder('${san(order.id)}')" title="Cancelar"><i class="fas fa-ban" aria-hidden="true"></i></button>`
+            : ''}
+          <button class="btn btn--ghost btn--sm expand-btn" title="Detalhes">
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          </button>
+        </div>
+      </td>`;
+
+    // Linha de detalhes (colapsável)
+    const detailTr = document.createElement('tr');
+    detailTr.className = 'order-detail-row';
+    detailTr.innerHTML = `
+      <td colspan="8">
+        <div class="order-detail-inner" id="detail-${san(order.id).replace('#','')}">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <p style="font-size:.75rem;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Endereço</p>
+              <p style="font-size:.85rem;">${san(order.customer?.address || '—')}, ${san(order.customer?.neighborhood || '')}</p>
+              <p style="font-size:.82rem;color:var(--color-text-muted);">CEP ${san(order.customer?.cep || '—')}</p>
+            </div>
+            <div>
+              <p style="font-size:.75rem;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Contato</p>
+              <p style="font-size:.85rem;">${san(order.customer?.phone || '—')}</p>
+            </div>
+            ${order.customer?.notes ? `
+            <div>
+              <p style="font-size:.75rem;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Observações</p>
+              <p style="font-size:.85rem;color:var(--color-accent);">${san(order.customer.notes)}</p>
+            </div>` : '<div></div>'}
+          </div>
+          <div class="order-items-detail">
+            ${(order.items||[]).map(item => `
+              <div class="order-item-chip">
+                <span>${san(item.emoji)}</span>
+                <span><strong>${san(item.qty)}x</strong> ${san(item.name)}</span>
+                <span style="color:var(--color-brand);">${fmt(item.price * item.qty)}</span>
+              </div>`).join('')}
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;border-top:1px solid var(--color-border);padding-top:8px;">
+            <span style="font-size:.85rem;color:var(--color-text-muted);">Subtotal: ${fmt(order.totals?.subtotal||0)}</span>
+            ${order.totals?.discount ? `<span style="font-size:.85rem;color:var(--color-success);">Desconto: −${fmt(order.totals.discount)}</span>` : ''}
+            <span style="font-size:.85rem;color:var(--color-text-muted);">Entrega: ${order.totals?.delivery===0?'Grátis':fmt(order.totals?.delivery||5)}</span>
+            <strong style="font-size:.95rem;color:var(--color-brand);">Total: ${fmt(order.totals?.total||0)}</strong>
+          </div>
+        </div>
+      </td>`;
+
+    // Toggle de expansão
+    const expandBtn = tr.querySelector('.expand-btn');
+    const detailId  = `detail-${order.id.replace('#','')}`;
+    expandBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const panel = document.getElementById(detailId);
+      const isOpen = panel.classList.toggle('open');
+      expandBtn.querySelector('i').style.transform = isOpen ? 'rotate(180deg)' : '';
+      expandBtn.querySelector('i').style.transition = 'transform .25s';
+    });
+
+    tbody.appendChild(tr);
+    tbody.appendChild(detailTr);
+  });
+};
+
+/* ── Dashboard ───────────────────────────────────────── */
+const renderDashboard = () => {
+  // Mini gráfico de barras por hora
+  const chart = document.getElementById('miniChart');
+  if (!chart) return;
+  const hours   = Array.from({length:13},(_,i)=>i+11); // 11h–23h
+  const counts  = hours.map(h => orders.filter(o => {
+    try { return new Date(o.createdAt).getHours() === h; } catch { return false; }
+  }).length);
+  const max     = Math.max(...counts, 1);
+  chart.innerHTML = hours.map((h,i) => `
+    <div class="mini-bar" style="height:${Math.max(8,(counts[i]/max)*100)}%;" data-label="${h}h" title="${counts[i]} pedidos às ${h}h"></div>`
+  ).join('');
+
+  // Categoria stats
+  const catStats = document.getElementById('categoryStats');
+  if (!catStats) return;
+  const cats = [
+    { emoji:'🍔', label:'Burgers',  cat:'burgers' },
+    { emoji:'🌭', label:'Hot Dogs', cat:'hotdogs' },
+    { emoji:'🍟', label:'Porções',  cat:'fries'   },
+    { emoji:'🥤', label:'Bebidas',  cat:'drinks'  },
+    { emoji:'🎯', label:'Combos',   cat:'combos'  },
+  ];
+  const allItems = orders.flatMap(o => o.items || []);
+  const totalQ   = allItems.reduce((s,i) => s + i.qty, 0) || 1;
+
+  catStats.innerHTML = cats.map(c => {
+    const PRODUCTS_DATA = [
+      {id:'b01',category:'burgers'},{id:'b02',category:'burgers'},{id:'b03',category:'burgers'},
+      {id:'b04',category:'burgers'},{id:'b05',category:'burgers'},{id:'b06',category:'burgers'},
+      {id:'h01',category:'hotdogs'},{id:'h02',category:'hotdogs'},{id:'h03',category:'hotdogs'},
+      {id:'f01',category:'fries'},{id:'f02',category:'fries'},{id:'f03',category:'fries'},
+      {id:'f04',category:'fries'},{id:'f05',category:'fries'},
+      {id:'d01',category:'drinks'},{id:'d02',category:'drinks'},{id:'d03',category:'drinks'},{id:'d04',category:'drinks'},
+      {id:'c01',category:'combos'},{id:'c02',category:'combos'},{id:'c03',category:'combos'},
+    ];
+    const ids  = PRODUCTS_DATA.filter(p => p.category === c.cat).map(p => p.id);
+    const qty  = allItems.filter(i => ids.includes(i.id)).reduce((s,i)=>s+i.qty,0);
+    const pct  = Math.round((qty/totalQ)*100);
+    return `
+      <div class="cat-stat-card">
+        <div class="emoji">${c.emoji}</div>
+        <p class="label">${c.label}</p>
+        <p class="value">${qty}</p>
+        <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <p style="font-size:.7rem;color:var(--color-text-muted);margin-top:6px;">${pct}%</p>
+      </div>`;
+  }).join('');
+
+  // Top 5 produtos
+  const productQty = {};
+  allItems.forEach(i => { productQty[i.id] = (productQty[i.id]||{qty:0,name:i.name,emoji:i.emoji,price:i.price}); productQty[i.id].qty += i.qty; });
+  const top5 = Object.values(productQty).sort((a,b)=>b.qty-a.qty).slice(0,5);
+  const tbody = document.getElementById('topProductsBody');
+  if (tbody) {
+    tbody.innerHTML = top5.map((p,i) => `
+      <tr>
+        <td><strong style="color:var(--color-brand);">${i+1}</strong></td>
+        <td>${san(p.emoji)} ${san(p.name)}</td>
+        <td style="color:var(--color-text-muted);font-size:.82rem;">—</td>
+        <td><strong>${p.qty}</strong></td>
+        <td style="color:var(--color-brand);font-weight:900;">${fmt(p.price*p.qty)}</td>
+      </tr>`).join('');
+  }
+};
+
+/* ── Navegação entre seções ──────────────────────────── */
+const showSection = (id) => {
+  document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+  const target = document.getElementById(`section-${id}`);
+  if (target) { target.style.display = ''; }
+
+  document.querySelectorAll('.admin-nav-item').forEach(a => {
+    a.classList.toggle('active', a.dataset.section === id);
+  });
+
+  document.getElementById('sectionTitle').textContent =
+    { orders:'Pedidos', dashboard:'Dashboard', products:'Cardápio', clients:'Clientes', settings:'Configurações' }[id] || id;
+
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'products')  renderProductsAdmin();
+};
+
+/* ── Produtos no admin ───────────────────────────────── */
+const renderProductsAdmin = () => {
+  const grid = document.getElementById('productsAdminGrid');
+  if (!grid) return;
+  // Mini preview dos produtos (mock)
+  const PRODS = [
+    {name:'SnapClassic',emoji:'🍔',price:32.90,available:true},
+    {name:'SnapDouble',emoji:'🍔',price:44.90,available:true},
+    {name:'SnapCrispy',emoji:'🍗',price:29.90,available:true},
+    {name:'SnapVerde',emoji:'🥬',price:31.90,available:true},
+    {name:'Dog Supremo',emoji:'🌭',price:24.90,available:true},
+    {name:'Milk Shake',emoji:'🥛',price:19.90,available:false},
+  ];
+  grid.innerHTML = PRODS.map(p => `
+    <div style="background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:14px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.8rem;">${p.emoji}</span>
+      <div style="flex:1">
+        <p style="font-weight:800;font-size:.9rem;">${san(p.name)}</p>
+        <p style="color:var(--color-brand);font-weight:900;font-size:.95rem;">${fmt(p.price)}</p>
+      </div>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--color-text-muted);">
+        <input type="checkbox" ${p.available?'checked':''} style="accent-color:var(--color-brand);" />
+        Ativo
+      </label>
+    </div>`).join('');
+};
+
+/* ── Toast do admin ──────────────────────────────────── */
+const showToast = (msg, type='success') => {
+  const c    = document.getElementById('toastContainer');
+  const icons = {success:'✅',error:'❌',info:'ℹ️'};
+  const t    = document.createElement('div');
+  t.className = `toast toast--${type}`;
+  t.innerHTML = `<span class="toast__icon">${icons[type]}</span><span>${san(msg)}</span>`;
+  c.appendChild(t);
+  const rm = () => { t.classList.add('toast--out'); t.addEventListener('animationend',()=>t.remove(),{once:true}); };
+  const timer = setTimeout(rm, 3200);
+  t.addEventListener('click', ()=>{ clearTimeout(timer); rm(); });
+};
+
+/* ── Relógio em tempo real ───────────────────────────── */
+const startClock = () => {
+  const el = document.getElementById('liveClock');
+  const tick = () => {
+    const now = new Date();
+    el.textContent = now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  };
+  tick();
+  setInterval(tick, 1000);
+};
+
+/* ── Simulação de pedido em tempo real ───────────────── */
+const simulateNewOrder = () => {
+  const names   = ['João Paulo','Beatriz Lima','Thiago Santos','Camila Rocha','Lucas Ferreira'];
+  const hoods   = ['Mooca','Vila Madalena','Liberdade','Pinheiros','Tatuapé'];
+  const payments= ['pix','card','cash'];
+  const products= [
+    {id:'b01',name:'SnapClassic',emoji:'🍔',price:32.90},
+    {id:'b02',name:'SnapDouble',emoji:'🍔',price:44.90},
+    {id:'c01',name:'Combo Classic',emoji:'🎯',price:49.90},
+  ];
+  const p = products[Math.floor(Math.random()*products.length)];
+  const newOrder = {
+    id: `#${(1010 + orders.length).toString().padStart(4,'0')}`,
+    status: 'pending',
+    customer: {
+      name: names[Math.floor(Math.random()*names.length)],
+      phone: '(11) 9 9000-0000',
+      address: `Rua Simulada, ${Math.floor(Math.random()*999)+1}`,
+      neighborhood: hoods[Math.floor(Math.random()*hoods.length)],
+      cep: '00000-000', notes: ''
+    },
+    payment: payments[Math.floor(Math.random()*payments.length)],
+    items: [{...p, qty:1}],
+    totals: {subtotal:p.price, discount:0, delivery:5, total:p.price+5},
+    createdAt: new Date().toISOString()
+  };
+  orders.unshift(newOrder);
+  saveOrders();
+  renderTable();
+  renderKpis();
+  showToast(`🆕 Novo pedido ${newOrder.id} de ${newOrder.customer.name}!`, 'info');
+};
+
+/* ── Init ────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  loadOrders();
+  startClock();
+  renderKpis();
+  renderTable();
+
+  // Filtros
+  document.querySelectorAll('.admin-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentFilter = btn.dataset.filter;
+      document.querySelectorAll('.admin-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTable();
+    });
+  });
+
+  // Busca
+  const searchInput = document.getElementById('adminSearch');
+  if (searchInput) {
+    let timer;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(renderTable, 250);
+    });
+  }
+
+  // Navegação lateral
+  document.querySelectorAll('.admin-nav-item').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      showSection(a.dataset.section);
+    });
+  });
+
+  // Refresh
+  const refreshBtn = document.getElementById('refreshBtn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      const icon = refreshBtn.querySelector('i');
+      icon.style.animation = 'rotateRing .6s linear';
+      loadOrders(); renderKpis(); renderTable();
+      showToast('Pedidos atualizados.', 'info');
+      setTimeout(() => { icon.style.animation = ''; }, 700);
+    });
+  }
+
+  // Imprimir
+  const printBtn = document.getElementById('printBtn');
+  if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+  // Simula novo pedido a cada 45s (demo)
+  //setInterval(simulateNewOrder, 45000);
+
+  // Log
+  console.info('%c🍔 TortugaBurg Admin%c v1.0.0','background:#f97316;color:#fff;font-weight:900;padding:4px 8px;','background:#1a1a1a;color:#f97316;font-weight:700;padding:4px 8px;');
+});
+</script>
+</body>
+</html>
