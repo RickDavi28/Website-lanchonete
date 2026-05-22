@@ -19,13 +19,6 @@ HTML5
 CSS3
 JavaScript
 Git & GitHub
-📸 Preview
-
-Adicione aqui prints do projeto futuramente:
-
-![Preview do projeto](./assets/preview.png)
-
-Porque nenhum projeto existe oficialmente até ter screenshot com glow laranja e sombra suave. Lei universal do GitHub.
 
 📂 Estrutura do Projeto
 Lanchote/
@@ -38,7 +31,7 @@ Lanchote/
 └── README.md
 ⚙️ Como Executar
 Clone o repositório:
-git clone https://github.com/SEU-USUARIO/lanchote.git
+git clone https://github.com/RickDavi28/Website-lanchonete
 Abra a pasta do projeto
 Execute o index.html no navegador
 
@@ -64,7 +57,7 @@ Deploy online
 
 Desenvolvido por Ricardo Davi Oliveira da Silva 🚀
 
-GitHub: GitHub de Ricardo Davi
+GitHub: GitHub de [Ricardo Davi](https://github.com/RickDavi28)
 
 📄 Licença
 
