@@ -10,56 +10,94 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="assets/styles/style.css" />
   <style>
-    /* Estilos exclusivos do painel admin */
+    /* Admin: isola o body sem afetar o index.html */
     body { overflow: hidden; }
 
-    /* Barra de rolagem visível na área de conteúdo do admin */
-    .admin-content::-webkit-scrollbar        { width: 8px; }
-    .admin-content::-webkit-scrollbar-track  { background: var(--color-surface); }
-    .admin-content::-webkit-scrollbar-thumb  {
-      background: var(--color-surface-3);
-      border-radius: var(--radius-pill);
-      border: 2px solid var(--color-surface);
+    /* .admin-layout recebe height e overflow aqui
+       (não no style.css global, para não vazar para outras páginas) */
+    .admin-layout { height: 100vh; overflow: hidden; }
+
+    /* Dashboard */
+    .admin-content-inner { display: flex; flex-direction: column; gap: var(--sp-xl); }
+
+    /* Linha de pedido expansível */
+    .order-row-expandable { cursor: pointer; }
+    .order-row-expandable:hover td { background: rgba(249,115,22,.06) !important; }
+    .order-detail-row td  { padding: 0; border: none; }
+    .order-detail-inner {
+      padding: 0 var(--sp-lg); max-height: 0; overflow: hidden;
+      transition: max-height .4s ease, padding .4s ease;
     }
-    .admin-content::-webkit-scrollbar-thumb:hover { background: var(--color-brand); }
+    .order-detail-inner.open { max-height: 600px; padding: var(--sp-md) var(--sp-lg); }
+    .order-items-detail { display: flex; flex-wrap: wrap; gap: var(--sp-sm); padding: var(--sp-md) 0; }
+    .order-item-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 6px 12px;
+      font-size: .82rem; font-weight: 700;
+    }
 
-    /* Sidebar também rola se o menu crescer */
-    .admin-sidebar::-webkit-scrollbar        { width: 4px; }
-    .admin-sidebar::-webkit-scrollbar-track  { background: transparent; }
-    .admin-sidebar::-webkit-scrollbar-thumb  { background: var(--color-surface-3); border-radius: 2px; }
-    .admin-sidebar::-webkit-scrollbar-thumb:hover { background: var(--color-brand); }
+    /* Mini gráfico */
+    .mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 60px; }
+    .mini-bar {
+      flex: 1; background: rgba(249,115,22,.3);
+      border-radius: 3px 3px 0 0; transition: background var(--ease-fast);
+      cursor: pointer; position: relative;
+    }
+    .mini-bar:hover { background: var(--brand); }
+    .mini-bar::after {
+      content: attr(data-label); position: absolute; bottom: -20px; left: 50%;
+      transform: translateX(-50%); font-size: .65rem; color: var(--text-faint); white-space: nowrap;
+    }
+    .chart-wrap { overflow: visible; padding-bottom: 24px; }
 
-    .admin-content-inner { display: flex; flex-direction: column; gap: var(--space-xl); }
+    /* Categoria stats */
+    .category-stats { display: grid; grid-template-columns: repeat(5,1fr); gap: var(--sp-sm); }
+    .cat-stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: var(--sp-md); text-align: center;
+      transition: border-color var(--ease);
+    }
+    .cat-stat-card:hover { border-color: rgba(249,115,22,.3); }
+    .cat-stat-card .emoji { font-size: 1.6rem; margin-bottom: 6px; }
+    .cat-stat-card .label { font-size: .75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+    .cat-stat-card .value { font-size: 1.2rem; font-weight: 900; margin: 4px 0; }
+    .cat-stat-card .bar   { height: 4px; border-radius: 2px; background: var(--surface-3); margin-top: 8px; overflow: hidden; }
+    .cat-stat-card .bar-fill { height: 100%; background: var(--brand); border-radius: 2px; transition: width 1s ease; }
+
+    @media print { .admin-sidebar, .admin-topbar-actions { display: none !important; } }
+
+    .admin-content-inner { display: flex; flex-direction: column; gap: var(--sp-xl); }
 
     /* Timeline de pedidos */
-    .orders-timeline { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .orders-timeline { display: flex; flex-direction: column; gap: var(--sp-sm); }
 
     .order-row-expandable { cursor: pointer; }
     .order-row-expandable:hover td { background: rgba(249,115,22,.06) !important; }
 
     .order-detail-row td { padding: 0; border: none; }
     .order-detail-inner {
-      padding: 0 var(--space-lg);
+      padding: 0 var(--sp-lg);
       max-height: 0;
       overflow: hidden;
       transition: max-height .4s ease, padding .4s ease;
     }
-    .order-detail-inner.open { max-height: 600px; padding: var(--space-md) var(--space-lg); }
+    .order-detail-inner.open { max-height: 600px; padding: var(--sp-md) var(--sp-lg); }
 
     .order-items-detail {
       display: flex;
       flex-wrap: wrap;
-      gap: var(--space-sm);
-      padding: var(--space-md) 0;
+      gap: var(--sp-sm);
+      padding: var(--sp-md) 0;
     }
 
     .order-item-chip {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: var(--color-surface-2);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
       padding: 6px 12px;
       font-size: 0.82rem;
       font-weight: 700;
@@ -72,22 +110,22 @@
     .category-stats {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: var(--space-sm);
+      gap: var(--sp-sm);
     }
     .cat-stat-card {
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-md);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: var(--sp-md);
       text-align: center;
-      transition: border-color var(--transition-base);
+      transition: border-color var(--ease);
     }
     .cat-stat-card:hover { border-color: rgba(249,115,22,.3); }
     .cat-stat-card .emoji { font-size: 1.6rem; margin-bottom: 6px; }
-    .cat-stat-card .label { font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; }
-    .cat-stat-card .value { font-size: 1.2rem; font-weight: 900; color: var(--color-text); margin: 4px 0; }
-    .cat-stat-card .bar { height: 4px; border-radius: 2px; background: var(--color-surface-3); margin-top: 8px; overflow: hidden; }
-    .cat-stat-card .bar-fill { height: 100%; background: var(--color-brand); border-radius: 2px; transition: width 1s ease; }
+    .cat-stat-card .label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+    .cat-stat-card .value { font-size: 1.2rem; font-weight: 900; color: var(--text); margin: 4px 0; }
+    .cat-stat-card .bar { height: 4px; border-radius: 2px; background: var(--surface-3); margin-top: 8px; overflow: hidden; }
+    .cat-stat-card .bar-fill { height: 100%; background: var(--brand); border-radius: 2px; transition: width 1s ease; }
 
     /* Mini gráfico de barras */
     .mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 60px; }
@@ -95,11 +133,11 @@
       flex: 1;
       background: rgba(249,115,22,.3);
       border-radius: 3px 3px 0 0;
-      transition: background var(--transition-fast);
+      transition: background var(--ease-fast);
       cursor: pointer;
       position: relative;
     }
-    .mini-bar:hover { background: var(--color-brand); }
+    .mini-bar:hover { background: var(--brand); }
     .mini-bar::after {
       content: attr(data-label);
       position: absolute;
@@ -107,13 +145,13 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: 0.65rem;
-      color: var(--color-text-faint);
+      color: var(--text-faint);
       white-space: nowrap;
     }
     .chart-wrap { overflow: visible; padding-bottom: 24px; }
 
     /* Live clock */
-    .live-clock { font-size: 0.85rem; font-weight: 700; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+    .live-clock { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
     /* Printer mock */
     @media print {
@@ -134,7 +172,7 @@
     <div class="admin-sidebar__brand">
       <span aria-hidden="true">🍔</span>
       Snap<span>Burg</span>
-      <small style="font-size:.7rem;color:var(--color-text-muted);font-family:var(--font-body);margin-left:auto;">Admin</small>
+      <small style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-body);margin-left:auto;">Admin</small>
     </div>
 
     <nav class="admin-sidebar__nav" aria-label="Seções do painel">
@@ -159,7 +197,7 @@
       <a href="index.html" class="btn btn--ghost btn--sm btn--full" style="justify-content:center;">
         <i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao Site
       </a>
-      <p style="text-align:center;font-size:.72rem;color:var(--color-text-faint);margin-top:12px;">
+      <p style="text-align:center;font-size:.72rem;color:var(--text-faint);margin-top:12px;">
         v1.0.0 · SnapBurg
       </p>
     </div>
@@ -175,7 +213,7 @@
       <div style="display:flex;align-items:center;gap:12px;">
         <h1 id="sectionTitle">Pedidos</h1>
         <span class="status-dot" title="Sistema online"></span>
-        <span style="font-size:.78rem;color:var(--color-success);font-weight:700;">Online</span>
+        <span style="font-size:.78rem;color:var(--success);font-weight:700;">Online</span>
       </div>
       <div class="admin-topbar-actions">
         <span class="live-clock" id="liveClock" aria-live="polite" aria-label="Horário atual"></span>
@@ -211,12 +249,12 @@
               <button class="admin-filter-btn" data-filter="cancelled">❌ Cancelados</button>
             </div>
             <div style="position:relative;">
-              <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--color-text-muted);pointer-events:none;" aria-hidden="true"></i>
+              <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;" aria-hidden="true"></i>
               <input
                 type="search"
                 id="adminSearch"
                 placeholder="Buscar pedido ou cliente…"
-                style="padding:9px 12px 9px 36px;border-radius:var(--radius-pill);border:1.5px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:.85rem;outline:none;width:240px;"
+                style="padding:9px 12px 9px 36px;border-radius:var(--r-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem;outline:none;width:240px;"
                 aria-label="Buscar pedidos"
               />
             </div>
@@ -281,8 +319,8 @@
         <section id="section-products" style="display:none;" aria-labelledby="productsAdminTitle">
           <h2 id="productsAdminTitle" style="margin-bottom:16px;">Gestão do Cardápio</h2>
           <div class="order-detail-panel">
-            <p style="color:var(--color-text-muted);font-size:.9rem;line-height:1.7;">
-              <i class="fas fa-info-circle" style="color:var(--color-brand);margin-right:8px;" aria-hidden="true"></i>
+            <p style="color:var(--text-muted);font-size:.9rem;line-height:1.7;">
+              <i class="fas fa-info-circle" style="color:var(--brand);margin-right:8px;" aria-hidden="true"></i>
               Esta seção estará disponível na integração com o backend.<br/>
               Funcionalidades planejadas: <strong>criar, editar, desativar</strong> produtos,
               <strong>upload de imagens</strong> via S3/Cloudinary, controle de
@@ -296,8 +334,8 @@
         <section id="section-clients" style="display:none;" aria-labelledby="clientsTitle">
           <h2 id="clientsTitle" style="margin-bottom:16px;">Clientes</h2>
           <div class="order-detail-panel">
-            <p style="color:var(--color-text-muted);font-size:.9rem;">
-              <i class="fas fa-info-circle" style="color:var(--color-brand);margin-right:8px;" aria-hidden="true"></i>
+            <p style="color:var(--text-muted);font-size:.9rem;">
+              <i class="fas fa-info-circle" style="color:var(--brand);margin-right:8px;" aria-hidden="true"></i>
               Requer integração com banco de dados (PostgreSQL). Funcionalidades: histórico de pedidos,
               segmentação, fidelidade (cashback), exportação CSV e CRM básico.
             </p>
@@ -506,7 +544,7 @@ const renderTable = () => {
   const filtered = getFiltered();
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--color-text-faint);">Nenhum pedido encontrado.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-faint);">Nenhum pedido encontrado.</td></tr>`;
     return;
   }
 
@@ -524,15 +562,15 @@ const renderTable = () => {
     tr.setAttribute('aria-label', `Pedido ${order.id}`);
     tr.dataset.orderId = order.id;
     tr.innerHTML = `
-      <td><strong style="color:var(--color-brand);">${san(order.id)}</strong></td>
-      <td style="color:var(--color-text-muted);font-size:.82rem;white-space:nowrap;">${fmtT(order.createdAt)}</td>
+      <td><strong style="color:var(--brand);">${san(order.id)}</strong></td>
+      <td style="color:var(--text-muted);font-size:.82rem;white-space:nowrap;">${fmtT(order.createdAt)}</td>
       <td>
         <strong style="font-size:.9rem;">${san(order.customer?.name || '—')}</strong>
-        <br/><small style="color:var(--color-text-muted);">${san(order.customer?.neighborhood || '')}</small>
+        <br/><small style="color:var(--text-muted);">${san(order.customer?.neighborhood || '')}</small>
       </td>
       <td>
         <span title="${san(itemNames)}" style="font-size:.85rem;">${itemCount} item${itemCount>1?'s':''}</span>
-        <br/><small style="color:var(--color-text-muted);font-size:.75rem;">${san(itemNames)}</small>
+        <br/><small style="color:var(--text-muted);font-size:.75rem;">${san(itemNames)}</small>
       </td>
       <td><strong>${fmt(order.totals?.total || 0)}</strong></td>
       <td style="font-size:.85rem;">${san(PAYMENT_LABELS[order.payment] || order.payment || '—')}</td>
@@ -557,18 +595,18 @@ const renderTable = () => {
         <div class="order-detail-inner" id="detail-${san(order.id).replace('#','')}">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
             <div>
-              <p style="font-size:.75rem;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Endereço</p>
+              <p style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Endereço</p>
               <p style="font-size:.85rem;">${san(order.customer?.address || '—')}, ${san(order.customer?.neighborhood || '')}</p>
-              <p style="font-size:.82rem;color:var(--color-text-muted);">CEP ${san(order.customer?.cep || '—')}</p>
+              <p style="font-size:.82rem;color:var(--text-muted);">CEP ${san(order.customer?.cep || '—')}</p>
             </div>
             <div>
-              <p style="font-size:.75rem;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Contato</p>
+              <p style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Contato</p>
               <p style="font-size:.85rem;">${san(order.customer?.phone || '—')}</p>
             </div>
             ${order.customer?.notes ? `
             <div>
-              <p style="font-size:.75rem;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Observações</p>
-              <p style="font-size:.85rem;color:var(--color-accent);">${san(order.customer.notes)}</p>
+              <p style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Observações</p>
+              <p style="font-size:.85rem;color:var(--accent);">${san(order.customer.notes)}</p>
             </div>` : '<div></div>'}
           </div>
           <div class="order-items-detail">
@@ -576,14 +614,14 @@ const renderTable = () => {
               <div class="order-item-chip">
                 <span>${san(item.emoji)}</span>
                 <span><strong>${san(item.qty)}x</strong> ${san(item.name)}</span>
-                <span style="color:var(--color-brand);">${fmt(item.price * item.qty)}</span>
+                <span style="color:var(--brand);">${fmt(item.price * item.qty)}</span>
               </div>`).join('')}
           </div>
-          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;border-top:1px solid var(--color-border);padding-top:8px;">
-            <span style="font-size:.85rem;color:var(--color-text-muted);">Subtotal: ${fmt(order.totals?.subtotal||0)}</span>
-            ${order.totals?.discount ? `<span style="font-size:.85rem;color:var(--color-success);">Desconto: −${fmt(order.totals.discount)}</span>` : ''}
-            <span style="font-size:.85rem;color:var(--color-text-muted);">Entrega: ${order.totals?.delivery===0?'Grátis':fmt(order.totals?.delivery||5)}</span>
-            <strong style="font-size:.95rem;color:var(--color-brand);">Total: ${fmt(order.totals?.total||0)}</strong>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+            <span style="font-size:.85rem;color:var(--text-muted);">Subtotal: ${fmt(order.totals?.subtotal||0)}</span>
+            ${order.totals?.discount ? `<span style="font-size:.85rem;color:var(--success);">Desconto: −${fmt(order.totals.discount)}</span>` : ''}
+            <span style="font-size:.85rem;color:var(--text-muted);">Entrega: ${order.totals?.delivery===0?'Grátis':fmt(order.totals?.delivery||5)}</span>
+            <strong style="font-size:.95rem;color:var(--brand);">Total: ${fmt(order.totals?.total||0)}</strong>
           </div>
         </div>
       </td>`;
@@ -650,7 +688,7 @@ const renderDashboard = () => {
         <p class="label">${c.label}</p>
         <p class="value">${qty}</p>
         <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
-        <p style="font-size:.7rem;color:var(--color-text-muted);margin-top:6px;">${pct}%</p>
+        <p style="font-size:.7rem;color:var(--text-muted);margin-top:6px;">${pct}%</p>
       </div>`;
   }).join('');
 
@@ -662,11 +700,11 @@ const renderDashboard = () => {
   if (tbody) {
     tbody.innerHTML = top5.map((p,i) => `
       <tr>
-        <td><strong style="color:var(--color-brand);">${i+1}</strong></td>
+        <td><strong style="color:var(--brand);">${i+1}</strong></td>
         <td>${san(p.emoji)} ${san(p.name)}</td>
-        <td style="color:var(--color-text-muted);font-size:.82rem;">—</td>
+        <td style="color:var(--text-muted);font-size:.82rem;">—</td>
         <td><strong>${p.qty}</strong></td>
-        <td style="color:var(--color-brand);font-weight:900;">${fmt(p.price*p.qty)}</td>
+        <td style="color:var(--brand);font-weight:900;">${fmt(p.price*p.qty)}</td>
       </tr>`).join('');
   }
 };
@@ -702,14 +740,14 @@ const renderProductsAdmin = () => {
     {name:'Milk Shake',emoji:'🥛',price:19.90,available:false},
   ];
   grid.innerHTML = PRODS.map(p => `
-    <div style="background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:14px;display:flex;align-items:center;gap:10px;">
+    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;display:flex;align-items:center;gap:10px;">
       <span style="font-size:1.8rem;">${p.emoji}</span>
       <div style="flex:1">
         <p style="font-weight:800;font-size:.9rem;">${san(p.name)}</p>
-        <p style="color:var(--color-brand);font-weight:900;font-size:.95rem;">${fmt(p.price)}</p>
+        <p style="color:var(--brand);font-weight:900;font-size:.95rem;">${fmt(p.price)}</p>
       </div>
-      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--color-text-muted);">
-        <input type="checkbox" ${p.available?'checked':''} style="accent-color:var(--color-brand);" />
+      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--text-muted);">
+        <input type="checkbox" ${p.available?'checked':''} style="accent-color:var(--brand);" />
         Ativo
       </label>
     </div>`).join('');
