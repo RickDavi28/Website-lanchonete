@@ -1,6 +1,6 @@
 # Website-lanchonete
 
-🍔 Lanchote
+Tortuga Lanche
 
 Sistema web de lanchonete desenvolvido para gerenciamento de pedidos, cardápio e painel administrativo.
 Projeto criado com foco em prática de desenvolvimento front-end, organização de interface e experiência do usuário. Porque aparentemente humanos decidiram que até pedir hambúrguer precisa de dashboard corporativo futurista.
