@@ -139,23 +139,26 @@ const Auth = (() => {
    * Usa window.location.href (não replace) para garantir compatibilidade
    * com GitHub Pages e ambientes com subpastas.
    */
-  const guard = (loginPath = 'login.html') => {
-    if (!isAuthenticated()) {
-      // Resolve caminho absoluto da pasta atual
-      const base      = window.location.href.replace(/\/[^/]*$/, '/');
-      const loginUrl  = base + loginPath;
-      window.location.href = loginUrl;
-    }
-  };
+ const guard = (loginPath = 'login.html') => {
+  if (!isAuthenticated()) {
+    window.location.href = new URL(
+      loginPath,
+      window.location.href
+    ).href;
+  }
+};
+
 
   /**
    * Redireciona para destino pós-login (fallback absoluto).
    * Mantido para compatibilidade, mas login.html usa resolveAdminPath().
    */
-  const redirectAfterLogin = (fallback = 'admin.html') => {
-    const base = window.location.href.replace(/\/[^/]*$/, '/');
-    window.location.href = base + fallback;
-  };
+const redirectAfterLogin = (fallback = 'admin.html') => {
+  window.location.href = new URL(
+    fallback,
+    window.location.href
+  ).href;
+};
 
   return { login, logout, getSession, isAuthenticated, guard, redirectAfterLogin };
 
