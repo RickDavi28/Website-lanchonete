@@ -9,6 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="assets/styles/style.css" />
+
+  <!-- Guard: bloqueia acesso sem sessão válida, redireciona para login -->
+  <script src="assets/scripts/auth.js"></script>
+  <script>Auth.guard('login.html');</script>
+
   <style>
     /* Admin: isola o body sem afetar o index.html */
     body { overflow: hidden; }
@@ -171,7 +176,7 @@
 
     <div class="admin-sidebar__brand">
       <span aria-hidden="true">🍔</span>
-      Tortuga<span>Burg</span>
+      Snap<span>Burg</span>
       <small style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-body);margin-left:auto;">Admin</small>
     </div>
 
@@ -197,6 +202,9 @@
       <a href="index.html" class="btn btn--ghost btn--sm btn--full" style="justify-content:center;">
         <i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao Site
       </a>
+      <button id="logoutBtnSidebar" class="btn btn--danger btn--sm btn--full" style="justify-content:center;margin-top:8px;">
+        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Encerrar Sessão
+      </button>
       <p style="text-align:center;font-size:.72rem;color:var(--text-faint);margin-top:12px;">
         v1.0.0 · Tortuga Burg
       </p>
@@ -217,11 +225,21 @@
       </div>
       <div class="admin-topbar-actions">
         <span class="live-clock" id="liveClock" aria-live="polite" aria-label="Horário atual"></span>
+
+        <!-- Usuário logado -->
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-pill);font-size:.82rem;">
+          <span id="adminAvatar" style="font-size:1.1rem;">👤</span>
+          <span id="adminName" style="font-weight:700;color:var(--text-muted);">—</span>
+        </div>
+
         <button class="btn btn--ghost btn--sm" id="refreshBtn" title="Atualizar pedidos">
           <i class="fas fa-sync-alt" aria-hidden="true"></i>
         </button>
-        <button class="btn btn--primary btn--sm" id="printBtn">
-          <i class="fas fa-print" aria-hidden="true"></i> Imprimir
+        <button class="btn btn--ghost btn--sm" id="printBtn" title="Imprimir">
+          <i class="fas fa-print" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn--danger btn--sm" id="logoutBtn" title="Sair do painel">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sair
         </button>
       </div>
     </header>
@@ -361,7 +379,7 @@
               </div>
               <div class="form-group">
                 <label>Frete grátis acima de (R$)</label>
-                <input type="number" value="50" min="0" />
+                <input type="number" value="80" min="0" />
               </div>
               <div class="form-group">
                 <label>WhatsApp de contato</label>
@@ -388,7 +406,7 @@
 
 <script>
 /**
- * SnapBurg Admin — admin.js (inline)
+ * Tortuga Burg Admin — admin.js (inline)
  * Lê pedidos do localStorage e renderiza o painel.
  * Pronto para substituição por WebSocket + API REST.
  */
@@ -467,7 +485,7 @@ const MOCK_ORDERS = (() => {
 /* ── Carrega pedidos ─────────────────────────────────── */
 const loadOrders = () => {
   // Usa 'null' em vez de '[]' para distinguir "chave inexistente" de "array vazio salvo"
-  const storedOrders = JSON.parse(localStorage.getItem('snapburg_orders') || 'null');
+  const storedOrders = JSON.parse(localStorage.getItem('tortugaburg_orders') || 'null');
 
   // Se há pedidos salvos usa eles; caso contrário cai no mock de demonstração
   orders = (storedOrders && storedOrders.length) ? storedOrders : MOCK_ORDERS;
@@ -477,7 +495,7 @@ const loadOrders = () => {
 };
 
 const saveOrders = () => {
-  localStorage.setItem('snapburg_orders', JSON.stringify(orders));
+  localStorage.setItem('tortugaburg_orders', JSON.stringify(orders));
 };
 
 /* ── KPIs ────────────────────────────────────────────── */
@@ -647,7 +665,7 @@ const renderDashboard = () => {
   // Mini gráfico de barras por hora
   const chart = document.getElementById('miniChart');
   if (!chart) return;
-  const hours   = Array.from({length:13},(_,i)=>i+11); // 11h–23h
+  const hours   = Array.from({length:7},(_,i)=>i+18); // 18h–00h
   const counts  = hours.map(h => orders.filter(o => {
     try { return new Date(o.createdAt).getHours() === h; } catch { return false; }
   }).length);
@@ -812,6 +830,23 @@ const simulateNewOrder = () => {
 
 /* ── Init ────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+
+  /* ── Sessão: exibe nome e avatar do usuário logado ─── */
+  const session = Auth.getSession();
+  if (session) {
+    const nameEl   = document.getElementById('adminName');
+    const avatarEl = document.getElementById('adminAvatar');
+    if (nameEl)   nameEl.textContent   = session.name;
+    if (avatarEl) avatarEl.textContent = session.avatar || '👤';
+  }
+
+  /* ── Logout ──────────────────────────────────────────── */
+  const doLogout = () => {
+    Auth.logout();
+    window.location.replace('login.html');
+  };
+  document.getElementById('logoutBtn')?.addEventListener('click', doLogout);
+  document.getElementById('logoutBtnSidebar')?.addEventListener('click', doLogout);
   loadOrders();
   startClock();
   renderKpis();
@@ -862,10 +897,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (printBtn) printBtn.addEventListener('click', () => window.print());
 
   // Simula novo pedido a cada 45s (demo)
-  //setInterval(simulateNewOrder, 120000);
+  setInterval(simulateNewOrder, 45000);
 
   // Log
-  console.info('%c🍔 Tortuga Burg Admin%c v1.0.0','background:#f97316;color:#fff;font-weight:900;padding:4px 8px;','background:#1a1a1a;color:#f97316;font-weight:700;padding:4px 8px;');
+  console.info('%c🐢 Tortuga Burg Admin%c v1.0.0','background:#f97316;color:#fff;font-weight:900;padding:4px 8px;','background:#1a1a1a;color:#f97316;font-weight:700;padding:4px 8px;');
 });
 </script>
 </body>

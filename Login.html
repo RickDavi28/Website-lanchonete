@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tortuga Burg — Login Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/styles/style.css" />
+
+  <style>
+    /* ── Reset da página de login ──────────────────────── */
+    html, body {
+      height: 100%;
+      overflow: hidden;   /* sem scroll na tela de login */
+    }
+
+    /* ── Layout: duas colunas ──────────────────────────── */
+    .login-page {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 100vh;
+      background: var(--bg);
+    }
+
+    /* ── Lado esquerdo: branding / visual ───────────────── */
+    .login-brand {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      padding: 48px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #0f0f0f 0%, #1c0f00 100%);
+    }
+
+    /* grade de pontos no fundo */
+    .login-brand::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(249,115,22,.18) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* círculo de brilho laranja */
+    .login-brand::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(249,115,22,.2) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .login-brand__logo {
+      position: relative; z-index: 1;
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .login-brand__logo strong { color: var(--brand); }
+
+    .login-brand__food {
+      position: relative; z-index: 1;
+      font-size: 7rem;
+      animation: loginFloat 4s ease-in-out infinite;
+      filter: drop-shadow(0 20px 40px rgba(249,115,22,.5));
+    }
+    @keyframes loginFloat {
+      0%,100% { transform: translateY(0) rotate(-3deg); }
+      50%     { transform: translateY(-16px) rotate(3deg); }
+    }
+
+    .login-brand__text {
+      position: relative; z-index: 1;
+      text-align: center;
+    }
+    .login-brand__text h2 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .login-brand__text p {
+      color: var(--text-muted);
+      font-size: .9rem;
+      line-height: 1.6;
+      max-width: 300px;
+    }
+
+    /* Cards flutuantes decorativos */
+    .login-float {
+      position: absolute;
+      background: rgba(26,26,26,.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: .82rem;
+      z-index: 2;
+      box-shadow: var(--shadow-lg);
+    }
+    .login-float--1 { top: 18%; left: 8%; animation: loginCard 3s ease-in-out infinite; }
+    .login-float--2 { bottom: 20%; right: 6%; animation: loginCard 3.5s ease-in-out .8s infinite; }
+    @keyframes loginCard {
+      0%,100% { transform: translateY(0); }
+      50%     { transform: translateY(-8px); }
+    }
+    .login-float__icon { font-size: 1.4rem; }
+    .login-float strong { display: block; font-weight: 800; font-size: .85rem; }
+    .login-float small  { color: var(--text-muted); }
+
+    /* ── Lado direito: formulário ───────────────────────── */
+    .login-form-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      background: var(--surface);
+      overflow-y: auto;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .login-box__header { display: flex; flex-direction: column; gap: 8px; }
+
+    .login-box__header h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+    .login-box__header h1 span { color: var(--brand); }
+
+    .login-box__header p { color: var(--text-muted); font-size: .9rem; }
+
+    /* Badge de acesso restrito */
+    .login-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.25);
+      color: var(--danger);
+      padding: 6px 14px;
+      border-radius: var(--r-pill);
+      font-size: .78rem;
+      font-weight: 800;
+      width: fit-content;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+
+    /* Form */
+    .login-form { display: flex; flex-direction: column; gap: 16px; }
+
+    .login-input-wrap {
+      position: relative;
+    }
+    .login-input-wrap i.icon-left {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: .9rem; pointer-events: none;
+    }
+    .login-input-wrap input {
+      width: 100%;
+      padding: 13px 44px 13px 40px;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      color: var(--text);
+      font-size: .95rem;
+      outline: none;
+      transition: border-color var(--ease-fast), box-shadow var(--ease-fast);
+    }
+    .login-input-wrap input::placeholder { color: var(--text-faint); }
+    .login-input-wrap input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px var(--brand-glow);
+    }
+    .login-input-wrap input.invalid {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(239,68,68,.2);
+    }
+
+    /* Toggle de senha */
+    .toggle-password {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: .85rem;
+      padding: 4px; cursor: pointer;
+      transition: color var(--ease-fast);
+    }
+    .toggle-password:hover { color: var(--brand); }
+
+    /* Checkbox lembrar */
+    .login-remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .login-remember input[type="checkbox"] {
+      accent-color: var(--brand);
+      width: 16px; height: 16px;
+      cursor: pointer;
+    }
+
+    /* Mensagem de erro */
+    .login-error {
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.25);
+      border-left: 4px solid var(--danger);
+      border-radius: var(--r-md);
+      padding: 12px 16px;
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: shake .4s ease;
+      display: none;
+    }
+    .login-error.show { display: flex; }
+    @keyframes shake {
+      0%,100%{ transform: translateX(0); }
+      20%    { transform: translateX(-8px); }
+      60%    { transform: translateX(8px); }
+    }
+
+    /* Botão de login */
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: var(--r-md);
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: .5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(249,115,22,.4);
+      transition: background var(--ease-fast), box-shadow var(--ease-fast), transform var(--ease-fast);
+    }
+    .login-btn:hover:not(:disabled) {
+      background: var(--brand-dark);
+      box-shadow: 0 6px 28px rgba(249,115,22,.55);
+      transform: translateY(-2px);
+    }
+    .login-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* Spinner no botão */
+    .login-btn .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .login-btn.loading .spinner { display: block; }
+    .login-btn.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Credenciais de demo */
+    .login-demo {
+      background: rgba(249,115,22,.06);
+      border: 1px solid rgba(249,115,22,.15);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      font-size: .82rem;
+    }
+    .login-demo__title {
+      font-weight: 900;
+      color: var(--brand);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .login-demo table { width: 100%; border-collapse: collapse; }
+    .login-demo td    { padding: 3px 0; color: var(--text-muted); }
+    .login-demo td:first-child { color: var(--text-faint); width: 80px; }
+    .login-demo td code {
+      background: var(--surface-3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: .82rem;
+      color: var(--accent);
+      cursor: pointer;
+    }
+    .login-demo td code:hover { background: var(--brand); color: #fff; }
+
+    /* Link de voltar ao site */
+    .login-back {
+      text-align: center;
+      font-size: .85rem;
+      color: var(--text-muted);
+    }
+    .login-back a { color: var(--brand); font-weight: 700; }
+    .login-back a:hover { text-decoration: underline; }
+
+    /* Rodapé */
+    .login-footer {
+      margin-top: auto;
+      text-align: center;
+      font-size: .75rem;
+      color: var(--text-faint);
+      padding-top: 24px;
+    }
+
+    /* ── Responsivo ─────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .login-page { grid-template-columns: 1fr; }
+      .login-brand { display: none; }
+      .login-form-side { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Redireciona admin já logado direto para o painel -->
+<script src="assets/scripts/auth.js"></script>
+<script>
+    if (Auth.isAuthenticated()) {
+    const base = window.location.href.replace(/\/[^/]*$/, '/');
+    window.location.href = base + 'admin.html';
+  }
+</script>
+
+<div class="login-page">
+
+  <!-- ============================================================
+       LADO ESQUERDO — Branding
+       ============================================================ -->
+  <div class="login-brand" aria-hidden="true">
+
+    <!-- Cards flutuantes decorativos -->
+    <div class="login-float login-float--1">
+      <span class="login-float__icon">📦</span>
+      <div>
+        <strong>Novos pedidos</strong>
+        <small>Atualizados em tempo real</small>
+      </div>
+    </div>
+
+    <div class="login-float login-float--2">
+      <span class="login-float__icon">📊</span>
+      <div>
+        <strong>Dashboard completo</strong>
+        <small>KPIs · Gráficos · Histórico</small>
+      </div>
+    </div>
+
+    <!-- Logo -->
+    <div class="login-brand__logo">
+      🐢 Tortuga <strong>Burg</strong>
+    </div>
+
+    <!-- Emoji animado -->
+    <div class="login-brand__food" role="img" aria-label="Burger">🍔</div>
+
+    <!-- Texto -->
+    <div class="login-brand__text">
+      <h2>Painel Administrativo</h2>
+      <p>Gerencie pedidos, acompanhe o faturamento e monitore sua operação em tempo real.</p>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       LADO DIREITO — Formulário
+       ============================================================ -->
+  <div class="login-form-side">
+    <div class="login-box">
+
+      <!-- Header -->
+      <div class="login-box__header">
+        <span class="login-badge">
+          <i class="fas fa-lock" aria-hidden="true"></i> Acesso Restrito
+        </span>
+        <h1>Bem-vindo de <span>volta</span></h1>
+        <p>Entre com suas credenciais de administrador para acessar o painel.</p>
+      </div>
+
+      <!-- Formulário -->
+      <form class="login-form" id="loginForm" novalidate>
+
+        <!-- E-mail -->
+        <div>
+          <label for="loginEmail" style="display:block;font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">
+            E-mail
+          </label>
+          <div class="login-input-wrap">
+            <i class="fas fa-envelope icon-left" aria-hidden="true"></i>
+            <input
+              type="email"
+              id="loginEmail"
+              name="email"
+              placeholder="admin@tortugaburg.com"
+              autocomplete="email"
+              required
+              autofocus
+            />
+          </div>
+        </div>
+
+        <!-- Senha -->
+        <div>
+          <label for="loginPassword" style="display:block;font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">
+            Senha
+          </label>
+          <div class="login-input-wrap">
+            <i class="fas fa-key icon-left" aria-hidden="true"></i>
+            <input
+              type="password"
+              id="loginPassword"
+              name="password"
+              placeholder="••••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" class="toggle-password" id="togglePassword" aria-label="Mostrar/ocultar senha">
+              <i class="fas fa-eye" id="eyeIcon" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lembrar + esqueceu -->
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <label class="login-remember">
+            <input type="checkbox" id="rememberMe" />
+            Lembrar neste dispositivo
+          </label>
+        </div>
+
+        <!-- Mensagem de erro -->
+        <div class="login-error" id="loginError" role="alert" aria-live="polite">
+          <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+          <span id="loginErrorMsg">E-mail ou senha incorretos.</span>
+        </div>
+
+        <!-- Botão -->
+        <button type="submit" class="login-btn" id="loginBtn">
+          <div class="spinner" aria-hidden="true"></div>
+          <span class="btn-text">
+            <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Entrar no Painel
+          </span>
+        </button>
+
+      </form>
+
+      <!-- Credenciais de demo -->
+      <div class="login-demo">
+        <p class="login-demo__title">
+          <i class="fas fa-flask" aria-hidden="true"></i> Credenciais para demonstração
+        </p>
+        <table>
+          <tr>
+            <td>E-mail</td>
+            <td><code id="demoEmail" title="Clique para preencher">admin@tortugaburg.com</code></td>
+          </tr>
+          <tr>
+            <td>Senha</td>
+            <td><code id="demoPassword" title="Clique para preencher">tortuga@2025</code></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Voltar ao site -->
+      <p class="login-back">
+        Não é admin? <a href="index.html">Voltar à loja</a>
+      </p>
+
+      <!-- Rodapé -->
+      <p class="login-footer">
+        Tortuga Burg v1.0.0 · Painel Admin · Sessão expira em 8h
+      </p>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+const loginForm     = document.getElementById('loginForm');
+const loginBtn      = document.getElementById('loginBtn');
+const loginError    = document.getElementById('loginError');
+const loginErrorMsg = document.getElementById('loginErrorMsg');
+const emailInput    = document.getElementById('loginEmail');
+const passInput     = document.getElementById('loginPassword');
+const eyeIcon       = document.getElementById('eyeIcon');
+const togglePassBtn = document.getElementById('togglePassword');
+
+/* ── Toggle visibilidade da senha ────────────────────────── */
+togglePassBtn.addEventListener('click', () => {
+  const isPass = passInput.type === 'password';
+  passInput.type    = isPass ? 'text' : 'password';
+  eyeIcon.className = isPass ? 'fas fa-eye-slash' : 'fas fa-eye';
+});
+
+/* ── Preenchimento rápido com credenciais demo ───────────── */
+document.getElementById('demoEmail').addEventListener('click', () => {
+  emailInput.value = 'admin@tortugaburg.com';
+  emailInput.classList.remove('invalid');
+});
+document.getElementById('demoPassword').addEventListener('click', () => {
+  passInput.value = 'tortuga@2025';
+  passInput.classList.remove('invalid');
+});
+
+/* ── Remove estado de erro ao digitar ────────────────────── */
+[emailInput, passInput].forEach(el => {
+  el.addEventListener('input', () => {
+    el.classList.remove('invalid');
+    loginError.classList.remove('show');
+  });
+});
+
+/* ── Exibe mensagem de erro ──────────────────────────────── */
+const showError = (msg) => {
+  loginErrorMsg.textContent = msg;
+  loginError.classList.add('show');
+  // Força re-trigger da animação de shake
+  loginError.style.animation = 'none';
+  void loginError.offsetWidth;
+  loginError.style.animation = '';
+  emailInput.classList.add('invalid');
+  passInput.classList.add('invalid');
+  passInput.focus();
+};
+
+/* ── Utilitário: resolve caminho absoluto para admin.html ─── */
+// Funciona em qualquer ambiente: file://, localhost, GitHub Pages, subpastas
+const resolveAdminPath = () => {
+  const base = window.location.href.replace(/\/[^/]*$/, '/'); // pasta atual
+  return base + 'admin.html';
+};
+
+/* ── Submit ──────────────────────────────────────────────── */
+loginForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const email    = emailInput.value.trim();
+  const password = passInput.value;
+
+  // Validação básica de frontend
+  if (!email)    { emailInput.classList.add('invalid'); emailInput.focus(); return; }
+  if (!password) { passInput.classList.add('invalid');  passInput.focus(); return; }
+
+  // Loading state
+  loginBtn.disabled = true;
+  loginBtn.classList.add('loading');
+  loginError.classList.remove('show');
+
+  // Simula latência de rede (em produção: await fetch('/api/auth/login'))
+  setTimeout(() => {
+    const result = Auth.login(email, password);
+
+    if (result.ok) {
+      // Sessão salva com sucesso — feedback visual
+      loginBtn.classList.remove('loading');
+      loginBtn.innerHTML = '<i class="fas fa-check-circle" style="font-size:1.1rem"></i> Redirecionando…';
+      loginBtn.style.background = 'var(--success)';
+      loginBtn.style.boxShadow  = '0 4px 20px rgba(34,197,94,.4)';
+
+      // Redireciona para admin com caminho absoluto calculado
+      // Evita problemas com paths relativos em GitHub Pages / subpastas
+      setTimeout(() => {
+        window.location.href = resolveAdminPath();
+      }, 600);
+
+    } else {
+      loginBtn.disabled = false;
+      loginBtn.classList.remove('loading');
+      showError(result.error);
+    }
+  }, 700);
+});
+
+/* ── Foco automático no primeiro campo ───────────────────── */
+window.addEventListener('load', () => emailInput.focus());
+</script>
+
+</body>
+</html>
