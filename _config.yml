@@ -1,0 +1,19 @@
+# _config.yml — GitHub Pages (Jekyll)
+# Desativa o processamento Jekyll para servir os arquivos como HTML/CSS/JS puros.
+# Sem isso, Jekyll ignora pastas que começam com _ e pode interferir nos assets.
+
+theme: null          # sem tema Jekyll
+plugins: []          # sem plugins
+
+# Inclui explicitamente pastas e arquivos que Jekyll poderia ignorar
+include:
+  - assets
+  - "*.html"
+  - "*.css"
+  - "*.js"
+
+# Exclui arquivos desnecessários do build
+exclude:
+  - README.md
+  - "*.sh"
+  - node_modules
