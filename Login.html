@@ -347,7 +347,7 @@
 <body>
 
 <!-- Redireciona admin já logado direto para o painel -->
-<script src="assets/scripts/auth.js"></script>
+<script src="./assets/scripts/auth.js"></script>
 <script>
  if (Auth.isAuthenticated()) {
   window.location.href = new URL(
@@ -498,7 +498,7 @@
 
       <!-- Voltar ao site -->
       <p class="login-back">
-        Não é admin? <a href="index.html">Voltar à loja</a>
+        Não é admin? <a href="./index.html">Voltar à loja</a>
       </p>
 
       <!-- Rodapé -->
@@ -564,7 +564,7 @@ const showError = (msg) => {
 /* ── Utilitário: resolve caminho absoluto para admin.html ─── */
 // Funciona em qualquer ambiente: file://, localhost, GitHub Pages, subpastas
 const resolveAdminPath = () => {
-  return new URL('admin.html', window.location.href).href;
+  return new URL('./admin.html', window.location.href).href;
 };
 
 /* ── Submit ──────────────────────────────────────────────── */
